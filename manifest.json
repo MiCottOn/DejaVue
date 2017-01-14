@@ -1,22 +1,27 @@
+//chrome dev tool config/initiator
+
 {
     "name": "DejaVue",
     "version": "1.0.0",
     "manifest_version": 2,
     "description": "Vue component and state visualization and load time optimizer",
+    //runs js on load and persistently in bg
     "background": {
         "page": "background.html"
     },
+    //runs devtools.js - initializes devtools panel
     "devtools_page": "devtools.html",
     "manifest_version": 2,
+    //allows for use of all js functions
     "content_security_policy": "default-src 'self'  chrome-extension-resource: ; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval';  connect-src *; frame-src *;",
     "web_accessible_resources":
       [
-      "*"
+      
       ],
     "browser_action": {
     "default_icon": {
-        "19": "assets/img/logo.png",
-        "38": "assets/img/logo.png"
+        "19": "app/assets/img/logo.png",
+        "38": "app/assets/img/logo.png"
     },
     "default_title": "DejaVue",
     "default_popup": "popup.html"
