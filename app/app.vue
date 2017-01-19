@@ -8,12 +8,13 @@
         <ul>
           <li><router-link to="/tree">Go to Tree</router-link></li>
           <li><router-link to="/render">Go to Render</router-link></li>
+          <li><router-link to="/testing">Go to Testing</router-link></li>
         </ul>
       </div>
-    </div>
+    </div>    
 
     <div id="contentContainer"> 
-      <router-view id="routerView"></router-view>
+      <router-view></router-view>
     </div>
     
     <div id="footerContainer">
@@ -29,12 +30,18 @@
 </template>
 
 <script>
+
+import Tree from './tree.vue'
+import Render from './render.vue'
+
 export default {
-  name: 'app',
+  name: 'home',
+  components: { Tree, Render },
   data () {
     return {
       title: 'DejaVue',
-      tagline: 'Vue component visualizer'
+      tagline: 'Vue component visualizer',
+      documentObj: function() {console.log('doc:', document.body.children)}()    
     }
   }
 }

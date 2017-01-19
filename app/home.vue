@@ -1,19 +1,19 @@
 <template>
-  <div id="renderContainer">
+  <div id="treeContainer">
     <h1>{{title}}</h1>
-    <h2>{{tagline}}</h2>
   </div>
+  
 </template>
 
 <script>
+ 
 export default {
-  name: 'render',
-  props: ['prop1', 'prop2', 'prop3'],
+  name: 'home',
+
   data () {
     return {
-      title: 'Render',
-      tagline: 'Component render times',
-      zrt: 'Component render times'
+      title: 'Homepage',
+      documentObj: function() {console.log('doc:', document.body.children)}()
     }
   }
 }

@@ -12,4 +12,6 @@ chrome.contextMenus.create({
   else {
     console.log('Context menu created');
   }
-});
+  });
+
+

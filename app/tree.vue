@@ -1,16 +1,25 @@
 <template>
-  <div id="app">
+  <div id="treeContainer">
     <h1>{{title}}</h1>
     <h2>{{tagline}}</h2>
+    <render></render>
+  </div>
+  
 </template>
 
 <script>
+import Render from './render.vue'
+ 
 export default {
-  name: 'app',
+  name: 'tree',
+  components: {
+    Render
+  },
   data () {
     return {
       title: 'Tree',
-      tagline: 'Tree Visualization'
+      tagline: 'Tree Visualization',
+      documentObj: function() {console.log('doc:', document.body.children)}()
     }
   }
 }
