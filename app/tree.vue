@@ -18,8 +18,7 @@ export default {
   data () {
     return {
       title: 'Tree',
-      tagline: 'Tree Visualization',
-      documentObj: function() {console.log('doc:', document.body.children)}()
+      tagline: 'Tree Visualization'
     }
   }
 }
