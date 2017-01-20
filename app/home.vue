@@ -12,8 +12,7 @@ export default {
 
   data () {
     return {
-      title: 'Homepage',
-      documentObj: function() {console.log('doc:', document.body.children)}()
+      title: 'Homepage'
     }
   }
 }
