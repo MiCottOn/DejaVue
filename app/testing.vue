@@ -1,7 +1,6 @@
 <template>
   <div id="treeContainer">
     <h1>{{title}}</h1>
-    <div id="rootObject">{{findRootNodes}}</div>
     <div id="componentsObject">componentsObject</div>
   </div>
   
@@ -14,22 +13,7 @@ export default {
 
   data () {
     return {
-      title: 'Testing',
-      findRootNodes: function() {
-        const keysArray = Object.keys(document.body.children);
-        const rootNodes = [];
-        const findRoots = (array) => {
-          for (let i = 0; i < array.length; i += 1) {
-            const testNode = document.body.children[array[i]]; 
-
-            if (testNode.__vue__ && !rootNodes.includes(testNode)) rootNodes.push(testNode);
-            if (testNode.$children) return findRoots(testNode.$children);
-          }
-
-          return rootNodes.join(',')
-        }
-        return findRoots(keysArray)
-      }()
+      title: 'Testing'
     }
   }
 }

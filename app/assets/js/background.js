@@ -1,17 +1,8 @@
 //javascript that is always running in the background
 
-chrome.contextMenus.create({
-  title: 'DejaVue right click menu for no reason!',
-  id: 'selectFromContextMenu',
-  contexts: ['all'],
-}, () => {
-  const error = chrome.runtime.lastError;
-  if (error) {
-    console.log(error);
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if (request.from == 'content_script') {
+    console.log('The request has been received from the content script.');
   }
-  else {
-    console.log('Context menu created');
-  }
-  });
-
+});
 
