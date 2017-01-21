@@ -42,7 +42,7 @@ export default {
       inspectDOM: function() {  
         let domNodes;
         chrome.devtools.inspectedWindow.eval(
-          `domNodes = inspect($$('body'));
+          `          domNodes = inspect($$('body'));
           
           function createDV() {
 
@@ -50,43 +50,53 @@ export default {
           let keysArray = Object.keys(domNodes[0].children);
         
           // console.log('keys', keysArray)
+            
           // initialize empty array to store root node objects
-            let rootNodes = [];
-
+          let rootNodes = [];
+            
           // iterate through keysArray to push only Vue root nodes into rootNodes array
-            function findRoots() {
-              for (let i = 0; i < keysArray.length; i += 1) {
-                const testNode = domNodes[0].children[keysArray[i]];
-                if (!rootNodes.includes(testNode) &&  testNode.__vue__) rootNodes.push(testNode);
-              }
+          function findRoots() {
+            for (let i = 0; i < keysArray.length; i += 1) {
+              const testNode = domNodes[0].children[keysArray[i]];
+            if (!rootNodes.includes(testNode) &&  testNode.__vue__) rootNodes.push(testNode);
+          }
 
-              return rootNodes;
+            return rootNodes;
+          };
+
+          findRoots();
+
+          const components = [];
+          // const componentNames = [];
+          
+          // recursively finds all vue components 
+          function findComponents(node) {
+            let childrenArray;
+
+            if (rootNodes.includes(node)) {
+              console.log('findcomponentsroot');
+              // rootNodes.push(node);
+              childrenArray = node.__vue__.$children;
+            }
+            else {
+              console.log('findcomponentschild'); 
+              childrenArray = node.$children;
+            }
+
+            childrenArray.forEach((child) => {
+              components.push(child);
+              // componentNames.push(child.$vnode.tag.replace(/vue-component-\d-/g, ''));
+              if(child.$children.length > 0) findComponents(child)
+            });
+
             };
 
-            const roots = findRoots();
-            const components = [];
-            const componentNames = [];
+            for (let i = 0; i < rootNodes.length; i += 1) {
+              findComponents(rootNodes[i])
+            }   
 
-            function findComponents(node) {
-              let childrenArray;
-
-              if (rootNodes.includes(node)) {
-                console.log('findcomponentsroot'); 
-                childrenArray = node.__vue__.$children;
-              }
-              else {
-                console.log('findcomponentschild'); 
-                childrenArray = node.$children;
-              }
-
-              childrenArray.forEach((child) => {
-                components.push(child);
-                componentNames.push(child.$vnode.tag.replace(/vue-component-\d-/g, ''));
-                if(child.$children.length > 0) findComponents(child)
-              });
-
-            };
-
+            if (components.includes(rootNodes[0].__vue__)) console.log('rooooot')            
+            if (!components.includes(rootNodes[0].__vue__)) components.unshift(rootNodes[0].__vue__); 
 
             function CompConstructor(node) {
           // -> _uid
@@ -104,48 +114,49 @@ export default {
           // this.directives = [];
             }
 
-            const fullComponents = [];
+            // const fullComponents = [];
+            // console.log('root', rootNodes)
 
-            for (let i = 0; i < rootNodes.length; i += 1) {
-              console.log('hit a root')
-              findComponents(rootNodes[i])
-            }
 
-            console.log('full', components)
+
+            console.log('vue components', components)
             const dvComponents = [];
 
-            function createDvComps(fullComponents) {
-              for (let i = 0; i < fullComponents.length; i += 1) {
-                node = fullComponents[i];
+            function createDvComps(components) {
 
-                dvComponents.push(new CompConstructor(node));
+              for (let i = 0; i < components.length; i += 1) {
 
-                const varKeys = Object.keys(node.$data).filter((key) => {
-                  if (key.match(/\s/g)) return false;
-                  return true;
+              node = components[i];
+
+              dvComponents.push(new CompConstructor(node));
+
+              const varKeys = Object.keys(node.$data).filter((key) => {
+                if (key.match(/\s/g)) return false;
+                return true;
+              });
+
+              if (varKeys) {
+                varKeys.forEach((variable) => {
+                  if (variable) dvComponents[dvComponents.length - 1].variables.push({ [variable]: node.$data[variable] });
                 });
-
-                if (varKeys) {
-                  varKeys.forEach((variable) => {
-                    if (variable) dvComponents[dvComponents.length - 1].variables.push({ [variable]: node.$data[variable] });
-                  });
-                }
-
-                if(node.$slots.default) {
-                    dvComponents[dvComponents.length - 1].slots.push(node.$slots.default[0].text);
-                }    
-
               }
+
+              if(node.$slots.default) 
+                {
+                  dvComponents[dvComponents.length - 1].slots.push(node.$slots.default[0].text);
+              }    
+
+          }
               return dvComponents;
             };
 
             createDvComps(components);
-            console.log('dv2',dvComponents)
+            console.log('deja vue components',dvComponents)
             return dvComponents
 
-        }
-          
-          createDV()
+      }
+        
+        createDV()
           `
         )
         
