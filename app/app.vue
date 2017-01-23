@@ -98,6 +98,7 @@ export default {
 
           if (components.includes(rootNodes[0].__vue__)) console.log('rooooot')            
           if (!components.includes(rootNodes[0].__vue__)) components.unshift(rootNodes[0].__vue__); 
+          if (rootNodes[0].__vue__ !== null) components.shift(); 
 
           function CompConstructor(node) {
         // -> _uid
@@ -279,6 +280,23 @@ export default {
 </script>
 
 <style lang="scss">
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 3px;
+}
+
+.node text {
+  font: 12px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+
 * {
   margin: 0;
   padding: 0;
