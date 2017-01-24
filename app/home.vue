@@ -1,5 +1,5 @@
 <template>
-  <div id="treeContainer">
+  <div id="homeContainer">
     <h1>{{title}}</h1>
   </div>
   
@@ -9,8 +9,7 @@
  
 export default {
   name: 'home',
-
-  data () {
+  data() {
     return {
       title: 'Homepage'
     }
