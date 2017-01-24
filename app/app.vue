@@ -31,9 +31,11 @@
 
 <script>
  
-import Home from './home.vue'
-import Tree from './tree.vue'
-import Render from './render.vue'
+import Home from './home.vue';
+import Tree from './tree.vue';
+import Render from './render.vue';
+// import { findProps } from './parseLogic/findProps';
+// ^ we should do something like this for best practice
 
 export default {
   name: 'app',
@@ -45,10 +47,10 @@ export default {
           `                    
           //returns rootNodes of dom including expando properties
           domNodes = inspect($$('body'));
+
           
           // main function to grab and plot data on visualization
           function createDV() {
-
           // gets document.body's child nodes which are direct child html elements
           let keysArray = Object.keys(domNodes[0].children);
                     
@@ -68,20 +70,24 @@ export default {
           };
 
           findRoots();
+
           console.log('rootNodes', rootNodes)
           // traverses a domNode to push all vue components into components array
+
           function findComponents(node) {
             let childrenArray;
 
             if (rootNodes.includes(node)) {
+
               console.log('findcomponentsroot');
         // fix for apps that have a root with vue$3 instead of __vue__
           if (components.includes(rootNodes[0].__vue__)) console.log('rooooot')            
               components.unshift(rootNodes[0].__vue__); 
+
               childrenArray = node.__vue__.$children;
             }
             else {
-              console.log('findcomponentschild'); 
+              // console.log('findcomponentschild');
               childrenArray = node.$children;
             }
 
@@ -170,11 +176,31 @@ export default {
                 }    
 
             }
+
+
+            if(node.$slots.default) {
+                dvComponents[dvComponents.length - 1].slots.push(node.$slots.default[0].text);
+            }    
+
+            //------PROPS---------//
+            let propsArr = [];
+            compElem = Object.keys(node);
+            for (let j = 0; j < compElem.length; j++) {
+              if (compElem[j][0] !== '_' && compElem[j][0] !== '$') {
+                propsArr.push(compElem[j]);
+              }
+            }
+            console.log(propsArr);
+            dvComponents[i].props = propsArr;
+            }
+            //-----PROPS--------//
+
             return dvComponents;
           };
 
           createDvComps(components);
-          console.log('deja vue components1',dvComponents)
+
+          console.log('deja vue components1', dvComponents)
           
         // conversion of components array to JSON object for D3 visualization  
           let data = [new treeNode({name: 'Vuee', parent: undefined})]
@@ -183,13 +209,14 @@ export default {
         // add unique ids to names in order to distinguish between components with the same name - to be spliced at out display
             this.name = node.name;
             this.parent = node.parentName;
+            this.props = node.props;
           }
 
           dvComponents.forEach(function(node) {
             data.push(new treeNode(node))
           })
           
-          console.log('data', data)
+          // console.log('data', data)
                 
 
         // create a name: node map
@@ -285,7 +312,10 @@ export default {
           ;
         }
     
+
         createDV()
+
+
         
         `
       )
