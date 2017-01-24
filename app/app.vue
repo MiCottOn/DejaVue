@@ -175,14 +175,7 @@ export default {
                   dvComponents[dvComponents.length - 1].slots.push(node.$slots.default[0].text);
                 }    
 
-            }
-
-
-            if(node.$slots.default) {
-                dvComponents[dvComponents.length - 1].slots.push(node.$slots.default[0].text);
-            }    
-
-            //------PROPS---------//
+            //------PROPS---------
             let propsArr = [];
             compElem = Object.keys(node);
             for (let j = 0; j < compElem.length; j++) {
@@ -193,7 +186,7 @@ export default {
             console.log(propsArr);
             dvComponents[i].props = propsArr;
             }
-            //-----PROPS--------//
+            //-----PROPS--------
 
             return dvComponents;
           };
