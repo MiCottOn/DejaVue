@@ -27,3 +27,14 @@ new Vue({
   el: '#app',
   render: h => h(App)
 })
+
+new Vue({
+  el: '#app2',
+  render: h => h(App2)
+})
+
+new Vue({
+  el: '#app3',
+  render: h => h(App3)
+})
+
