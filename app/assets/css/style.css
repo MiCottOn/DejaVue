@@ -1,0 +1,102 @@
+/* Universal
+============================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Body / App
+============================================================== */
+body {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+
+a {
+  color: #42b983;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Header
+============================================================== */
+#headerContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 40px;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0px 0px 6px #ccc;
+  background: rgba(255,255,255,.9);
+  margin: 0;
+  position: fixed;
+  top: 0;
+}
+
+#headerLeft {
+  text-align: left;
+  width: 20%;
+  padding-left: 20px;
+}
+
+h1 a {
+  display: block;
+  height: 40px;
+  font-weight: bold;
+  color: #2c3e50;
+  padding: 5px;
+}
+
+#headerRight {
+  flex: 1;
+  text-align: right;
+  padding-right: 20px;
+}
+
+#headerRight ul {
+  display: flex;
+  justify-content: flex-end;
+}
+
+#headerRight li {
+  height: 40px;
+}
+
+#headerRight li a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 12px 10px;
+  color: #999;
+  transition: border .25s ease;
+}
+
+#headerRight a:hover {
+  border-bottom: 4px solid #42b983;
+}
+
+/* SVG Styles
+============================================================== */
+svg path.link:first-of-type, svg g.node:first-of-type {
+  display: none
+}
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 3px;
+}
+
+.node text {
+  font: 12px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+
