@@ -3,12 +3,28 @@
   <head>
     <meta charset="utf-8">
     <title>DejaVue</title>
+    <script src="d3.min.js"></script>
+    <style>
+
+    .node circle {
+      fill: #fff;
+      stroke: steelblue;
+      stroke-width: 3px;
+    }
+
+    .node text {
+      font: 12px sans-serif;
+    }
+
+    .link {
+      fill: none;
+      stroke: #ccc;
+      stroke-width: 2px;
+    }
+    </style>
   </head>
   <body>
     <div id="app"></div>
-    <div id="app2"></div>
-    <div id="app3"></div>
     <script src="/dist/build.js"></script>
-    <script src="d3.min.js"></script>
   </body>
 </html>

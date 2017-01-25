@@ -11,7 +11,7 @@ export default {
   name: 'home',
   data() {
     return {
-      title: 'Homepage'
+      title: 'Component Hierarchy'
     }
   }
 }
