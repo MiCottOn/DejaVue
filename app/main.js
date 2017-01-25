@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import App from './app.vue'
-import App2 from './app2.vue'
-import App3 from './app3.vue'
 import Home from './home.vue'
 import Tree from './tree.vue'
 import Render from './render.vue'
@@ -28,13 +26,4 @@ new Vue({
   render: h => h(App)
 })
 
-new Vue({
-  el: '#app2',
-  render: h => h(App2)
-})
-
-new Vue({
-  el: '#app3',
-  render: h => h(App3)
-})
 
