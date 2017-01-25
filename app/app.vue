@@ -16,7 +16,7 @@
     <div id="contentContainer"> 
       <router-view></router-view>
     </div>
-    
+    <button @click="inspectDOM()"> Console log Vue Components </button>
     <div id="footerContainer">
       <ul>
         <li><a v-on:click="inspectDOM()">GitHub</a></li>
