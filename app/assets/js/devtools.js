@@ -233,9 +233,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', (p
         // append the svg object to the body of the page
         // appends a 'group' element to 'svg'
         // moves the 'group' element to the top left margin
-            var svg = d3.select("#app").append("svg")
+            var svg = d3.select("#treeContainer").append("svg")
                 .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom),
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("viewbox", function() {
+                    return  "0 0 500 600";
+                });
               g = svg.append("g")
                 .attr("transform",
                   "translate(" + margin.left + "," + margin.top + ")");
