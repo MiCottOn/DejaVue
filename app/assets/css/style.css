@@ -55,6 +55,7 @@ h1 a {
   flex: 1;
   text-align: right;
   padding-right: 20px;
+  min-width: 320px;
 }
 
 #headerRight ul {
@@ -78,8 +79,12 @@ h1 a {
 #headerRight li a:hover {
   color: #2c3e50;
 }
-#headerRight a:hover {
+.active {
   border-bottom: 4px solid #42b983;
+}
+
+#headerRight li.active a {
+  color: #2c3e50;
 }
 
 /* SVG Styles
@@ -106,3 +111,35 @@ svg path.link:first-of-type, svg g.node:first-of-type {
   stroke-width: 2px;
 }
 
+/* Sidebar
+============================================================== */
+#sidebar {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 200px;
+  height: calc(100vh - 40px);
+  background: rgba(44, 62, 80, .92);
+}
+
+.toggle-drawer {
+  position: absolute;
+  top: 50px;
+  right: 50px;
+  display: block;
+  width: 100px;
+  height: 32px;
+  border-radius: 3px;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: white;
+  z-index: 5;
+  background: #42b983;
+  line-height: 32px;
+}
+
+#sidebar li {
+  display: block;
+  padding: 8px;
+}
