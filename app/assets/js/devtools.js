@@ -243,7 +243,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', (p
           d3.selection.prototype.first = function() {
             return d3.select(this[0][0]);
           };
-          
+
          // adds the links between the nodes
             var link = g.selectAll(".link")
               .data( nodes.descendants().slice(1))
@@ -257,6 +257,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', (p
                 });
 
           // adds each node as a group
+
             var node = g.selectAll(".node")
               .data(nodes.descendants())
               .enter().append("g")
@@ -265,17 +266,20 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', (p
                 (d.children ? " node--internal" : " node--leaf"); })
               .attr("transform", function(d) { 
                 return "translate(" + d.y + "," + d.x + ")"; });
+            
 
           // adds the circle to the node
             node.append("circle")
-              .attr("r", 10);
+                .attr("r", 8);
 
           // adds the text to the node
             node.append("text")
               .attr("dy", ".35em")
-              .attr("x", function(d) { return d.children ? -13 : 13; })
+              .attr("x", function(d) { return d.children ? 30 : -30; })
+              .attr("y", function() { return -20 })
               .style("text-anchor", function(d) { 
               return d.children ? "end" : "start"; })
+          
           // remove component ID when displaying name on tree
               .text(function(d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
             ;

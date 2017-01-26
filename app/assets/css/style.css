@@ -72,21 +72,27 @@ h1 a {
   height: 100%;
   padding: 12px 10px;
   color: #999;
-  transition: border .25s ease;
+  transition: color .25s ease;
 }
 
+#headerRight li a:hover {
+  color: #2c3e50;
+}
 #headerRight a:hover {
   border-bottom: 4px solid #42b983;
 }
 
 /* SVG Styles
 ============================================================== */
+svg {
+  margin-left: -200px;
+}
 svg path.link:first-of-type, svg g.node:first-of-type {
   display: none
 }
 .node circle {
   fill: #fff;
-  stroke: steelblue;
+  stroke: #42b983;
   stroke-width: 3px;
 }
 
