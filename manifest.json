@@ -20,7 +20,7 @@
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
-            "js": ["d3.min.js"],
+            "js": ["d3.min.js", "app/assets/js/content-script.js"],
             "run_at" : "document_start"
         }
         
