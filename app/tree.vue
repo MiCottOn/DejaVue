@@ -3,21 +3,53 @@
 
     <a href="#" class="toggle-drawer" @click="toggleDrawer">{{toggleMessage}}</a>
     <div id="sidebar" class="hidden" v-if="open">
-      <ul>
-        <li>
-          <p>One</p>
+      <ul class="components">
+        <h2>Components</h2>
+        <li class="component">
+          <h3><a href="#">Root</a></h3>
         </li>
         <li>
-          <p>Two</p>
+          <h3><a href="#">DemoHeader</a></h3>
         </li>
         <li>
-          <p>Three</p>
+          <h3><a href="#">PostForm</a></h3>
         </li>
         <li>
-          <p>Four</p>
+          <h3><a href="#" @click="toggleVisible">PostList*</a></h3>
+          <div class="layer-1" v-if="visible">
+            <h4>Props</h4>
+            <ul>
+              <li>
+                <p>Prop 1</p>
+              </li>
+              <li>
+                <p>Prop 2</p>
+              </li>
+              <li>
+                <p>Prop 3</p>
+              </li>
+            </ul>
+            <h4>Vars</h4>
+            <ul>
+              <li><p>Var 1</p></li>
+              <li><p>Var 2</p></li>
+              <li><p>Var 3</p></li>
+            </ul>
+            <h4>Slots</h4>
+            <ul>
+              <li><p>Slot 1</p></li>
+              <li><p>Slot 2</p></li>
+            </ul>
+          </div>
         </li>
         <li>
-          <p>Five</p>
+          <h3><a href="#">DemoPost</a></h3>
+        </li>
+        <li>
+          <h3><a href="#">CommentList</a></h3>
+        </li>
+        <li>
+          <h3><a href="#">CommentBox</a></h3>
         </li>
       </ul>
     </div>
@@ -32,6 +64,7 @@ export default {
   data () {
     return {
       open: false,
+      visible: false,
       toggleMessage: "open sidebar"
     }
   },
@@ -43,6 +76,13 @@ export default {
       } else {
         this.open = false;
         this.toggleMessage = "open sidebar"
+      }
+    },
+    toggleVisible: function() {
+      if(!this.visible) {
+        this.visible = true;
+      } else {
+        this.visible = false
       }
     }
   }

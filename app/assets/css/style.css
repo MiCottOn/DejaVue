@@ -35,6 +35,7 @@ a {
   margin: 0;
   position: fixed;
   top: 0;
+  z-index: 100;
 }
 
 #headerLeft {
@@ -115,31 +116,52 @@ svg path.link:first-of-type, svg g.node:first-of-type {
 ============================================================== */
 #sidebar {
   position: absolute;
+  height: auto;
   top: 40px;
   right: 0;
-  width: 200px;
-  height: calc(100vh - 40px);
-  background: rgba(44, 62, 80, .92);
+  width: 180px;
+  min-height: calc(100vh - 40px);
+  background: rgba(44, 62, 80, .90);
+  padding-top: 65px;
 }
 
 .toggle-drawer {
   position: absolute;
   top: 50px;
-  right: 50px;
+  right: 40px;
   display: block;
   width: 100px;
   height: 32px;
-  border-radius: 3px;
+  border-radius: 5px;
   text-align: center;
   text-transform: uppercase;
   text-decoration: none;
-  color: white;
+  color: #42b983;
   z-index: 5;
-  background: #42b983;
+  border: 1px solid #42b983;
+  font-size: 11px;
   line-height: 32px;
 }
 
+.layer-1 {
+  background: rgba(44,62,80,.96);
+  padding: 5px;
+  color: white;
+}
 #sidebar li {
   display: block;
+}
+
+#sidebar h2 {
+  color: #42b983;
+  font-weight: bold;
+}
+#sidebar a {
+  display: block;
   padding: 8px;
+  color: white;
+}
+
+#sidebar a:hover {
+  color: #42b983;
 }
