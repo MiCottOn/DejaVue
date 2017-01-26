@@ -277,9 +277,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         })
                         // remove component ID when displaying name on tree
                         .text(function (d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
-                    ;
-        
-                
+
                 console.log('data', data)
             })
             console.log('yo')
@@ -288,5 +286,5 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
     }
     updater()        
         });
+});
 
-})
