@@ -209,103 +209,108 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             }
 
             createDV()`
-            , function (data) {
+ 
+        , function(data) {
+            panel.onShown.addListener(function(panelWindow) {
+        // create a name: node map
+          var dataMap = data.reduce(function(map, node) {
+              map[node.name] = node;
+              return map;
+          }, {});
+
+        // create the tree array
+          var treeData = [];
+          d3 = panelWindow.d3;
                 
-                    d3 = _panelWindow.d3;
-                    // create a name: node map
-                    var dataMap = data.reduce(function (map, node) {
-                        map[node.name] = node;
-                        return map;
-                    }, {});
+          data.forEach(function(node) {
+              // add to parent
+              var parent = dataMap[node.parent];
+              if (parent) {
+                  // create child array if it doesn't exist
+                  (parent.children || (parent.children = []))
+                      // add node to child array
+                      .push(node);
+              } else {
+                  // parent is null or missing
+                  treeData.push(node);
+              }
+          });
+          console.log(treeData)
 
-                    // create the tree array
-                    var treeData = [];
-                    d3.select("svg#treeVisualization").remove()
-                    data.forEach(function (node) {
-                        // add to parent
-                        var parent = dataMap[node.parent];
-                        if (parent) {
-                        // create child array if it doesn't exist
-                            (parent.children || (parent.children = []))
-                        // add node to child array if not already in it (prevents doubling of tree when switching between devtool panels)
-                             parent.children.push(node);
-                        } else {
-                        // parent is null or missing from treeData - if not already in it (prevents doubling of tree when switching between devtool panels)
-                             treeData.push(node);
-                        }
-                    });
+          treeData = Object.assign({}, treeData)[0];
 
-                    treeData = Object.assign({}, treeData)[0];
+          console.log(treeData)
+          var margin = {top: 20, right: 90, bottom: 30, left: 90},
+            width = 660 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
 
-                    // console.log(treeData)
-                    var margin = { top: 20, right: 90, bottom: 30, left: 90 },
-                        width = 660 - margin.left - margin.right,
-                        height = 500 - margin.top - margin.bottom;
+        // declares a tree layout and assigns the size
+          var treemap = d3.tree()
+            .size([height, width]);
 
-                    // declares a tree layout and assigns the size
-                    var treemap = d3.tree()
-                        .size([height, width]);
+        // assigns the data to a hierarchy using parent-child relationships
+            var nodes = d3.hierarchy(treeData, function(d) {
+              return d.children;
+            });
 
-                    // assigns the data to a hierarchy using parent-child relationships
-                    var nodes = d3.hierarchy(treeData, function (d) {
-                        return d.children;
-                    });
+        // maps the node data to the tree layout
+            nodes = treemap(nodes);
 
-                    // maps the node data to the tree layout
-                    nodes = treemap(nodes);
+        // append the svg object to the body of the page
+        // appends a 'group' element to 'svg'
+        // moves the 'group' element to the top left margin
+            var svg = d3.select("#treeContainer").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("viewbox", function() {
+                    return  "0 0 500 600";
+                });
+              g = svg.append("g")
+                .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+                  
+          d3.selection.prototype.first = function() {
+            return d3.select(this[0][0]);
+          };
 
-                    // append the svg object to the body of the page
-                    // appends a 'group' element to 'svg'
-                    // moves the 'group' element to the top left margin
-                    var svg = d3.select("#app").append("svg")
-                        .attr("id", "treeVisualization")
-                        .attr("width", width + margin.left + margin.right)
-                        .attr("height", height + margin.top + margin.bottom),
-                        g = svg.append("g")
-                            .attr("transform",
-                            "translate(" + margin.left + "," + margin.top + ")");
+         // adds the links between the nodes
+            var link = g.selectAll(".link")
+              .data( nodes.descendants().slice(1))
+              .enter().append("path")
+              .attr("class", "link")
+              .attr("d", function(d) {
+                return "M" + d.y + "," + d.x
+                + "C" + (d.y + d.parent.y) / 2 + "," + d.x
+                + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
+                + " " + d.parent.y + "," + d.parent.x;
+                });
+
+          // adds each node as a group
+
+            var node = g.selectAll(".node")
+              .data(nodes.descendants())
+              .enter().append("g")
+              .attr("class", function(d) { 
+                return "node" + 
+                (d.children ? " node--internal" : " node--leaf"); })
+              .attr("transform", function(d) { 
+                return "translate(" + d.y + "," + d.x + ")"; });
             
-                    d3.selection.prototype.first = function () {
-                        return d3.select(this[0][0]);
-                    };
 
-                    // adds the links between the nodes
-                    var link = g.selectAll(".link")
-                        .data(nodes.descendants().slice(1))
-                        .enter().append("path")
-                        .attr("class", "link")
-                        .attr("d", function (d) {
-                            return "M" + d.y + "," + d.x
-                                + "C" + (d.y + d.parent.y) / 2 + "," + d.x
-                                + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
-                                + " " + d.parent.y + "," + d.parent.x;
-                        });
+          // adds the circle to the node
+            node.append("circle")
+                .attr("r", 8);
 
-                    // adds each node as a group
-                    var node = g.selectAll(".node")
-                        .data(nodes.descendants())
-                        .enter().append("g")
-                        .attr("class", function (d) {
-                            return "node" +
-                                (d.children ? " node--internal" : " node--leaf");
-                        })
-                        .attr("transform", function (d) {
-                            return "translate(" + d.y + "," + d.x + ")";
-                        });
-
-                    // adds the circle to the node
-                    node.append("circle")
-                        .attr("r", 10);
-
-                    // adds the text to the node
-                    node.append("text")
-                        .attr("dy", ".35em")
-                        .attr("x", function (d) { return d.children ? -13 : 13; })
-                        .style("text-anchor", function (d) {
-                            return d.children ? "end" : "start";
-                        })
-                        // remove component ID when displaying name on tree
-                        .text(function (d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
+          // adds the text to the node
+            node.append("text")
+              .attr("dy", ".35em")
+              .attr("x", function(d) { return d.children ? 30 : -30; })
+              .attr("y", function() { return -20 })
+              .style("text-anchor", function(d) { 
+              return d.children ? "end" : "start"; })
+          
+          // remove component ID when displaying name on tree
+              .text(function(d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
                     ;
         
                 
@@ -319,6 +324,8 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         });
 
 })
+    
+
     
 
     
