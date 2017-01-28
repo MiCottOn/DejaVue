@@ -7,12 +7,17 @@
     "description": "Vue component and state visualization and load time optimizer",
     //runs js on load and persistently in bg
     "background": {
-        "page": "background.html"
+        "scripts": [
+            "app/assets/js/background.js"
+        ]
     },
     //runs devtools.js - initializes devtools panel
     "devtools_page": "devtools.html",
     "manifest_version": 2,
     "permissions": [
+        "storage",
+        "experimental",
+        "tabs",
         "activeTab",
         "<all_urls>",
         "*://*/*"

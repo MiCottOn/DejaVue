@@ -3,39 +3,30 @@
 // chrome.extension.*
 
 // Create a tab in the devtools area. Optional callback accepted.
-var backgroundPageConnection = chrome.runtime.connect({
-	name: 'panel'
-});
-
-backgroundPageConnection.postMessage({
-	name: 'init',
-    tabId: chrome.devtools.inspectedWindow.tabId,
-    count: chrome.devtools.inspectedWindow.count
-});
 
 
 
 chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', function (extensionPanel) {
-    let count;
 
-    chrome.devtools.inspectedWindow.eval(`setSelectedElement()`, {
-        useContentScriptContext: true
+    let count;
+    let oldCount;
+    chrome.storage.sync.get('oldCount', function(data){oldCount = data.oldCount})
+
+    var show = new Promise(function(resolve, reject) {
+        extensionPanel.onShown.addListener(function(panelWindow) {                            
+            resolve(panelWindow);
+        });                
     });
 
-    console.log(count)    
-
-        var show = new Promise(function(resolve, reject) {
-            extensionPanel.onShown.addListener(function(panelWindow) {                            
-                resolve(panelWindow);
-            });                
-        });
-
-        show.then(function(_panelWindow) {
-          let data = []
-    function updater() {
-        var poller = setInterval(function(){
-        if(document !== null) {
-    //returns rootNodes of dom including expando properties
+    show.then(function(_panelWindow) {
+        let data = []
+        function updater() {
+            var poller = setInterval(function () {
+                chrome.storage.sync.get('count', function(data){count = data.count})
+                console.log(oldCount, count)
+                if (count !== oldCount) {
+                    oldCount = count;
+        //returns rootNodes of dom including expando properties
         chrome.devtools.inspectedWindow.eval(
             `   domNodes = inspect($$('body'));
                 console.log('hit test')
@@ -166,10 +157,11 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             // conversion of components array to JSON object for D3 visualization  
                 data = [new treeNode({name: 'Vuee', parent: undefined})]
                 function treeNode(node) {
-            // add unique ids to names in order to distinguish between components with the same name - to be spliced at out display
                     this.name = node.name;
                     this.parent = node.parentName;
                     this.props = node.props;
+                    this.variables = node.variables;
+                    this.slots = node.slots;
                 }
                 dvComponents.forEach(function(node) {
                     data.push(new treeNode(node))
@@ -181,8 +173,36 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             }
             createDV()`
             , function (data) {
-                
-                    d3 = _panelWindow.d3;
+                d3 = _panelWindow.d3;
+
+            //append component data to sidebar
+                for (let node = 0; node < data.length; node += 1) {
+                    let nodeData = `
+                        
+                            <h3><a href="#" @click="toggleVisible">${data[node].name}</a></h3>
+                            <h4>Props</h4>
+                            <ul>
+                            <li>
+                                <p>${data[node].variables}</p>
+                            </li>
+                            </ul>
+                            <h4>Vars</h4>
+                            <ul>
+                            <li><p>${data[node].props}</p></li>
+                            </ul>
+                            <h4>Slots</h4>
+                            <ul>
+                            <li><p>${data[node].slots}</p></li>
+                            </ul>
+                        
+                    `
+                    let divv = document.createElement("li");
+                    divv.innerHTML = nodeData
+                    _panelWindow.document.getElementById("componentInfo").appendChild(divv)
+                }
+
+
+             // d3 tree creation   
                     // create a name: node map
                     var dataMap = data.reduce(function (map, node) {
                         map[node.name] = node;
@@ -278,11 +298,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         // remove component ID when displaying name on tree
                         .text(function (d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
 
-                console.log('data', data)
             })
-            console.log('yo')
         }
-        }, 400);
+        }, 200);
     }
     updater()        
         });
