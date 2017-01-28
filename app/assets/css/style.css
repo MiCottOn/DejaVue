@@ -123,6 +123,7 @@ svg path.link:first-of-type, svg g.node:first-of-type {
   min-height: calc(100vh - 40px);
   background: rgba(44, 62, 80, .90);
   padding-top: 65px;
+  color: #FAFAFA;
 }
 
 .toggle-drawer {
