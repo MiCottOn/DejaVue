@@ -13,20 +13,12 @@
     </header>    
 
     <section id="contentContainer"> 
-      <router-view></router-view>
+      <router-view keep-alive></router-view>
     </section>
   </div>
 </template>
 
 <script>
- function do_something(msg) {
-    document.body.textContent += '\n' + msg; // Stupid example, PoC
-}
-document.documentElement.onclick = function() {
-    // No need to check for the existence of `respond`, because
-    // the panel can only be clicked when it's visible...
-    respond('Another stupid example!');
-};
 import Home from './home.vue';
 import Tree from './tree.vue';
 import Render from './render.vue';
