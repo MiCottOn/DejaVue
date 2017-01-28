@@ -246,7 +246,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
                     // maps the node data to the tree layout
                     nodes = treemap(nodes);
-
+                    // Define the div for the tooltip
+                    var div = d3.select("body").append("div")	
+                        .attr("class", "tooltip")				
+                        .style("opacity", 0);
                     // append the svg object to the body of the page
                     // appends a 'group' element to 'svg'
                     // moves the 'group' element to the top left margin
@@ -288,8 +291,24 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
                     // adds the circle to the node
                     node.append("circle")
-                        .attr("r", 10);
+                        .attr("r", 10)
+                        .on("mouseover", function(d) {		
+                            div.transition()		
+                                .duration(200)		
+                                .style("opacity", .9);		
+                            div	.html(d.data.props + "<br/>")	
+                                .style("left", (d3.event.pageX) + "px")		
+                                .style("top", (d3.event.pageY - 28) + "px");	
+                            })					
+                        .on("mouseout", function(d) {		
+                            div.transition()		
+                                .duration(500)		
+                                .style("opacity", 0);	
+                        });
 
+                
+
+                
                     // adds the text to the node
                     node.append("text")
                         .attr("dy", ".35em")
@@ -299,6 +318,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         })
                         // remove component ID when displaying name on tree
                         .text(function (d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
+
 
             })
         }
