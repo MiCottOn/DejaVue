@@ -23,7 +23,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         function updater() {
             var poller = setInterval(function () {
                 chrome.storage.sync.get('count', function(data){count = data.count})
-                console.log(oldCount, count)
                 if (count !== oldCount) {
                     oldCount = count;
         //returns rootNodes of dom including expando properties
@@ -300,7 +299,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
             })
         }
-        }, 200);
+        }, 100);
     }
     updater()        
         });

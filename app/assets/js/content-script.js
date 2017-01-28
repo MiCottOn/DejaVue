@@ -8,7 +8,7 @@ nodeCounter = function () {
         check = count;
     });
     if (count !== check) {
-        chrome.storage.sync.set({ 'count': count }, function () {
+        chrome.storage.sync.set({'count': count }, function () {
             // Notify that we saved.
         });
     }    
@@ -23,6 +23,6 @@ firstNodeCounter = function () {
 
 window.onload = firstNodeCounter()
 
-setInterval(nodeCounter, 200)
+setInterval(nodeCounter, 100)
 
 
