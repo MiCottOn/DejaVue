@@ -1,16 +1,28 @@
-let modificationList = []
-        MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-        var observer = new MutationObserver(function(mutations, observer) {
-            for(var mutation in mutations){
-                modificationList.push(mutation);
-                chrome.extension.sendMessage({'reRender': true})
-                console.log(modificationList)
-            }
-        });
+let count;
+let oldCount;
+let check;
 
-        observer.observe(document, {
-            subtree: true,
-            attributes: true,
-            characterData: true,
-            childList:true
+nodeCounter = function () {
+    count = document.querySelectorAll('*').length;
+    chrome.storage.sync.get('count', function() {
+        check = count;
+    });
+    if (count !== check) {
+        chrome.storage.sync.set({'count': count }, function () {
+            return
         });
+    }    
+}
+
+firstNodeCounter = function () {
+    oldCount = document.querySelectorAll('*').length;
+    chrome.storage.sync.set({'oldCount': count}, function() {
+        return
+    });
+}
+
+window.onload = firstNodeCounter()
+
+setInterval(nodeCounter, 100)
+
+

@@ -12,8 +12,8 @@ const router = new VueRouter({
   mode: 'history',
   base: __dirname,
   routes: [
-    { path: '/index.html', components: { default: Home } },
-    { path: '/', component: Home },
+    { path: '/index.html', components: { default: Tree } },
+    { path: '/', component: Tree },
     {path: '/tree', component: Tree},
     {path: '/render', component: Render},
     {path: '/testing', component: Testing},

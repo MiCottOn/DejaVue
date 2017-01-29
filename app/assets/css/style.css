@@ -35,6 +35,7 @@ a {
   margin: 0;
   position: fixed;
   top: 0;
+  z-index: 100;
 }
 
 #headerLeft {
@@ -55,6 +56,7 @@ h1 a {
   flex: 1;
   text-align: right;
   padding-right: 20px;
+  min-width: 320px;
 }
 
 #headerRight ul {
@@ -72,21 +74,31 @@ h1 a {
   height: 100%;
   padding: 12px 10px;
   color: #999;
-  transition: border .25s ease;
+  transition: color .25s ease;
 }
 
-#headerRight a:hover {
+#headerRight li a:hover {
+  color: #2c3e50;
+}
+.active {
   border-bottom: 4px solid #42b983;
+}
+
+#headerRight li.active a {
+  color: #2c3e50;
 }
 
 /* SVG Styles
 ============================================================== */
+svg {
+  margin-left: -200px;
+}
 svg path.link:first-of-type, svg g.node:first-of-type {
   display: none
 }
 .node circle {
   fill: #fff;
-  stroke: steelblue;
+  stroke: #42b983;
   stroke-width: 3px;
 }
 
@@ -100,3 +112,70 @@ svg path.link:first-of-type, svg g.node:first-of-type {
   stroke-width: 2px;
 }
 
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 60px;					
+    height: 28px;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
+
+/* Sidebar
+============================================================== */
+#sidebar {
+  position: absolute;
+  height: auto;
+  top: 40px;
+  right: 0;
+  width: 180px;
+  min-height: calc(100vh - 40px);
+  background: rgba(44, 62, 80, .90);
+  padding-top: 65px;
+  color: #FAFAFA;
+}
+
+.toggle-drawer {
+  position: absolute;
+  top: 50px;
+  right: 40px;
+  display: block;
+  width: 100px;
+  height: 32px;
+  border-radius: 5px;
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #42b983;
+  z-index: 5;
+  border: 1px solid #42b983;
+  font-size: 11px;
+  line-height: 32px;
+}
+
+.layer-1 {
+  background: rgba(44,62,80,.96);
+  padding: 5px;
+  color: white;
+}
+#sidebar li {
+  display: block;
+}
+
+#sidebar h2 {
+  color: #42b983;
+  font-weight: bold;
+}
+#sidebar a {
+  display: block;
+  padding: 8px;
+  color: white;
+}
+
+#sidebar a:hover {
+  color: #42b983;
+}
