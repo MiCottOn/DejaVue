@@ -157,7 +157,9 @@ domNodes = inspect($$('body'));
                         return dvComponents;
                     };
                     createDvComps(components);
-                // console.log('deja vue components1', dvComponents)
+                 console.log('rootNodes', rootNodes)
+                 console.log('components', components)
+                 console.log('deja vue components1', dvComponents)
                     
                 // conversion of components array to JSON object for D3 visualization  
                     data = [new treeNode({name: 'Vuee', parent: undefined})]
@@ -181,33 +183,34 @@ domNodes = inspect($$('body'));
                 d3 = _panelWindow.d3;
 
             //append component data to sidebar
-                if (_panelWindow.document.getElementById("compdata")) {
-                    let removal = _panelWindow.document.getElementById("compdata");
-                    _panelWindow.document.getElementById("componentInfo").removeChild(removal)
-                }
-                    // let nodeData = `
+                // if (_panelWindow.document.getElementById("compdata")) {
+                //     let removal = _panelWindow.document.getElementById("compdata");
+                //     _panelWindow.document.getElementById("componentInfo").removeChild(removal)
+                // }
+                //     let nodeData = `
                         
-                    //         <h3><a href="#" @click="toggleVisible">${data[7].name}</a></h3>
-                    //         <h4>Props</h4>
-                    //         <ul>
-                    //         <li>
-                    //             <p>${data[7].props}</p>
-                    //         </li>
-                    //         </ul>
-                    //         <h4>Vars</h4>
-                    //         <ul>
-                    //         <li><p>${data[7].variables}</p></li>
-                    //         </ul>
-                    //         <h4>Slots</h4>
-                    //         <ul>
-                    //         <li><p>${data[7].slots}</p></li>
-                    //         </ul>
+                //             <h3><a href="#" @click="toggleVisible">${data[7].name}</a></h3>
+                //             <h4>Props</h4>
+                //             <ul>
+                //             <li>
+                //                 <p>${data[7].props}</p>
+                //             </li>
+                //             </ul>
+                //             <h4>Vars</h4>
+                //             <ul>
+                //             <li><p>${data[7].variables}</p></li>
+                //             </ul>
+                //             <h4>Slots</h4>
+                //             <ul>
+                //             <li><p>${data[7].slots}</p></li>
+                //             </ul>
                         
-                    // `
-                    // let divv = document.createElement("li");
-                    // divv.setAttribute('id', 'compdata');
-                    // divv.innerHTML = nodeData;
-                    // _panelWindow.document.getElementById("componentInfo").appendChild(divv);
+                //     `
+                //     let divv = document.createElement("li");
+                //     divv.setAttribute('id', 'compdata');
+                //     divv.innerHTML = nodeData;
+                //     _panelWindow.document.getElementById("componentInfo").appendChild(divv);
+
                 
 
 
@@ -299,7 +302,8 @@ domNodes = inspect($$('body'));
                     // adds the circle to the node
                     node.append("circle")
                         .attr("r", 10)
-                        .on("mouseover", function(d) {		
+                        .on("mouseover", function (d) {
+                            chrome.devtools.inspectedWindow.eval(`document.body.setAttribute('style', 'background-color: rgba(137, 196, 219, .4')`);
                             div.transition()		
                                 .duration(200)		
                                 .style("opacity", .9);		
