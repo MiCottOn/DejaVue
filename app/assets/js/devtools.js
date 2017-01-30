@@ -302,6 +302,9 @@ domNodes = inspect($$('body'));
                     // adds the circle to the node
                     node.append("circle")
                         .attr("r", 10)
+                        .on("click", function (d) {
+                            alert('Click handler. Use d.* to access node properties');
+                        })
                         .on("mouseover", function (d) {
                             chrome.devtools.inspectedWindow.eval(`document.body.setAttribute('style', 'background-color: rgba(137, 196, 219, .4')`);
                             div.transition()		
