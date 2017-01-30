@@ -29,7 +29,8 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         chrome.devtools.inspectedWindow.eval(
             `   //USE TO SEE JS OUTSIDE OF TEMPLATE LITERAL STRING TO DEVTOOLS
 
-                domNodes = inspect($$('body'));
+                
+domNodes = inspect($$('body'));
                     console.log('Tree rerendered')
                     
                 // main function to grab and plot data on visualization
@@ -43,14 +44,20 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     let dvComponents = [];
                     
                 // iterate through keysArray to push only Vue root nodes into rootNodes array
-                    function findRoots() {
-                        for (let i = 0; i < keysArray.length; i += 1) {
-                            const testNode = domNodes[0].children[keysArray[i]];
-                        if (!rootNodes.includes(testNode) &&  testNode.__vue__) rootNodes.push(testNode);
+                    function findRoots(node) {
+                      if (!rootNodes.includes(node) &&  node.__vue__) {
+                        rootNodes.push(node);
+                        console.log('pushed')
+                      } else {
+                        let keysArray = Object.keys(node.children);
+                        console.log('keysArray', keysArray);
+                        for (let i = 0; i < keysArray.length; i++) {
+                          console.log('node.children[keysArray[i]]', node.children[keysArray[i]]);
+                          if (!rootNodes.includes(node.children[keysArray[i]])) findRoots(node.children[keysArray[i]]);
                         }
-                        return rootNodes;
+                      }
                     };
-                    findRoots();
+                    findRoots(domNodes[0]);
                 // console.log('rootNodes', rootNodes)
                 // traverses a domNode to push all vue components into components array
                     function findComponents(node) {
@@ -167,7 +174,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         data.push(new treeNode(node))
                     })
                     
-                // console.log('data', data)
+                console.log('data', data)
                         
                     return data
                 }
@@ -203,6 +210,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 //     divv.setAttribute('id', 'compdata');
                 //     divv.innerHTML = nodeData;
                 //     _panelWindow.document.getElementById("componentInfo").appendChild(divv);
+
                 
 
 
