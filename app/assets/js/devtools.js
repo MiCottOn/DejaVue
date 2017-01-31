@@ -137,11 +137,13 @@ domNodes = inspect($$('body'));
                                 if (key.match(/\s/g)) return false;
                                 return true;
                             });
+
                             if (varKeys) {
                                 varKeys.forEach((variable) => {
                                     if (variable) dvComponents[dvComponents.length - 1].variables.push({ [variable]: node.$data[variable] });
                                 });
                             }
+
                             if(node.$slots.default) 
                             {
                                 dvComponents[dvComponents.length - 1].slots.push(node.$slots.default[0].text);
@@ -150,7 +152,7 @@ domNodes = inspect($$('body'));
                             compElem = Object.keys(node);
                             for (let j = 0; j < compElem.length; j++) {
                                 if (compElem[j][0] !== '_' && compElem[j][0] !== '$') {
-                                    dvComponents[dvComponents.length - 1].props.push(compElem[j]);
+                                    dvComponents[dvComponents.length - 1].props.push({[compElem[j]]: node[compElem[j]]});
                                 }
                             }
                         }
@@ -167,7 +169,7 @@ domNodes = inspect($$('body'));
                         this.name = node.name;
                         this.parent = node.parentName;
                         this.props = node.props;
-                        this.variables = JSON.stringify(node.variables);
+                        this.variables = node.variables;
                         this.slots = node.slots;
                     }
                     dvComponents.forEach(function(node) {
@@ -183,33 +185,7 @@ domNodes = inspect($$('body'));
                 d3 = _panelWindow.d3;
 
             //append component data to sidebar
-                // if (_panelWindow.document.getElementById("compdata")) {
-                //     let removal = _panelWindow.document.getElementById("compdata");
-                //     _panelWindow.document.getElementById("componentInfo").removeChild(removal)
-                // }
-                //     let nodeData = `
-                        
-                //             <h3><a href="#" @click="toggleVisible">${data[7].name}</a></h3>
-                //             <h4>Props</h4>
-                //             <ul>
-                //             <li>
-                //                 <p>${data[7].props}</p>
-                //             </li>
-                //             </ul>
-                //             <h4>Vars</h4>
-                //             <ul>
-                //             <li><p>${data[7].variables}</p></li>
-                //             </ul>
-                //             <h4>Slots</h4>
-                //             <ul>
-                //             <li><p>${data[7].slots}</p></li>
-                //             </ul>
-                        
-                //     `
-                //     let divv = document.createElement("li");
-                //     divv.setAttribute('id', 'compdata');
-                //     divv.innerHTML = nodeData;
-                //     _panelWindow.document.getElementById("componentInfo").appendChild(divv);
+
 
                 
 
@@ -302,15 +278,12 @@ domNodes = inspect($$('body'));
                     // adds the circle to the node
                     node.append("circle")
                         .attr("r", 10)
-                        .on("click", function (d) {
-                            alert('Click handler. Use d.* to access node properties');
-                        })
                         .on("mouseover", function (d) {
                             chrome.devtools.inspectedWindow.eval(`document.body.setAttribute('style', 'background-color: rgba(137, 196, 219, .4')`);
                             div.transition()		
                                 .duration(200)		
                                 .style("opacity", .9);		
-                            div	.html(d.data.props + "<br/>")	
+                            div	.html(d.data.name + "<br/>")	
                                 .style("left", (d3.event.pageX) + "px")		
                                 .style("top", (d3.event.pageY - 28) + "px");	
                             })					
@@ -327,12 +300,85 @@ domNodes = inspect($$('body'));
                     node.append("text")
                         .attr("dy", ".35em")
                         .attr("x", function (d) { return d.children ? -13 : 13; })
+                        .on("click", function (d) {
+                            clickHandler(d);
+                        })
                         .style("text-anchor", function (d) {
                             return d.children ? "end" : "start";
                         })
                         // remove component ID when displaying name on tree
                         .text(function (d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
 
+                    //dejavue custom d3 functionality
+                    //click handler function for node text
+                    function clickHandler(d) {
+                        if (_panelWindow.document.getElementById("compdata")) {
+                            let removal = _panelWindow.document.getElementById("compdata");
+                            _panelWindow.document.getElementById("componentInfo").removeChild(removal)
+                        }
+                        
+                            let divv = document.createElement("div");
+                            divv.setAttribute('id', 'compdata');
+                            divv.innerHTML = `
+
+                                    <h3>${d.data.name}</h3>
+                                    <h4>Props</h4>
+                                    <ul id="${d.data.name}Props">
+    
+                                    </ul>
+                                    <h4>Vars</h4>
+                                    <ul id="${d.data.name}Variables">
+
+                                    </ul>
+                                    <h4>Slot</h4>
+                                    <ul>
+                                        <li><p>${(d.data.slots) ? d.data.slots : "No slot/data"}</p></li>
+                                    </ul>
+
+                                `;
+                        
+                            _panelWindow.document.getElementById("componentInfo").appendChild(divv);
+                        
+                        //populate variables on sidebar
+                            let variableList = _panelWindow.document.getElementById(d.data.name + "Variables");
+                            if (d.data.variables === "undefined") {
+                                    let variable = document.createElement("li");
+                                    variable.setAttribute('id', d.data.name + 'VariableUndefined');
+                                    variable.innerHTML = "undefined";
+                                    variableList.appendChild(variable);
+                            }
+                            else {
+                                for (let i = 0; i < d.data.variables.length; i += 1) {
+                                    for (key in d.data.variables[i]) {
+                                        let variable = document.createElement("li");
+                                        variable.setAttribute('id', d.data.name[key] + 'Variable');
+                                        variable.innerHTML = (typeof d.data.variables[i][key] === 'object') ? key + ": Function" : key + ": " + d.data.variables[i][key];
+                                        variableList.appendChild(variable);
+                                    }
+                                }
+                            };
+                        
+                        //populate props on sidebar
+                            let propList = _panelWindow.document.getElementById(d.data.name + "Props");
+                            if (d.data.props === "undefined") {
+                                    let prop = document.createElement("li");
+                                    prop.setAttribute('id', d.data.name + 'PropUndefined');
+                                    prop.innerHTML = "undefined";
+                                    propList.appendChild(prop);
+                            }
+                            else {
+                                for (let i = 0; i < d.data.props.length; i += 1) {
+                                    for (key in d.data.props[i]) {
+                                        console.log(typeof d.data.props[i][key])
+                                        let prop = document.createElement("li");
+                                        prop.setAttribute('id', d.data.name[key] + 'Prop');
+                                        prop.innerHTML = (typeof d.data.props[i][key] === 'object') ? key + ": Function" : key + ": " + d.data.props[i][key];
+                                        propList.appendChild(prop);
+                                    }
+                                }
+                            };
+
+                    }
 
             })
         }
