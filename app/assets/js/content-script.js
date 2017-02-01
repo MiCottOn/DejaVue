@@ -3,7 +3,7 @@ let oldCount;
 let check;
 
 nodeCounter = function () {
-    count = document.querySelectorAll('*').length;
+    count = document.querySelectorAll('*').length - document.querySelectorAll('div.highlighter').length;
     chrome.storage.sync.get('count', function() {
         check = count;
     });

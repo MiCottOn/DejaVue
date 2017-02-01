@@ -65,8 +65,7 @@ domNodes = inspect($$('body'));
                         if (rootNodes.includes(node)) {
                 // console.log('findcomponentsroot');
                 // fix for apps that have a root with vue$3 instead of __vue__
-                        if (components.includes(rootNodes[0].__vue__))            
-                        components.unshift(rootNodes[0].__vue__); 
+                        components.push(rootNodes[0].__vue__); 
                         childrenArray = node.__vue__.$children;
                     }
                     else {
@@ -125,6 +124,10 @@ domNodes = inspect($$('body'));
                         this.variables = [];
                         this.props = [];
                         this.slots = [];
+                        this.width = node.$el.getBoundingClientRect().width;
+                        this.height = node.$el.getBoundingClientRect().height;
+                        this.top = node.$el.getBoundingClientRect().top;
+                        this.left = node.$el.getBoundingClientRect().left;
                 // this.directives = [];
                     }
                 // console.log('vue components', components)
@@ -171,6 +174,10 @@ domNodes = inspect($$('body'));
                         this.props = node.props;
                         this.variables = node.variables;
                         this.slots = node.slots;
+                        this.width = node.width;
+                        this.height = node.height;
+                        this.top = node.top;
+                        this.left = node.left;
                     }
                     dvComponents.forEach(function(node) {
                         data.push(new treeNode(node))
@@ -183,12 +190,8 @@ domNodes = inspect($$('body'));
                 createDV()`
             , function (data) {
                 d3 = _panelWindow.d3;
-
+                console.log('returned data', data)
             //append component data to sidebar
-
-
-                
-
 
              // d3 tree creation   
                     // create a name: node map
@@ -274,23 +277,34 @@ domNodes = inspect($$('body'));
                         .attr("transform", function (d) {
                             return "translate(" + d.y + "," + d.x + ")";
                         });
-
+                    let highlight;
+                    let removal;
                     // adds the circle to the node
                     node.append("circle")
                         .attr("r", 10)
-                        .on("mouseover", function (d) {
-                            chrome.devtools.inspectedWindow.eval(`document.body.setAttribute('style', 'background-color: rgba(137, 196, 219, .4')`);
-                            div.transition()		
-                                .duration(200)		
-                                .style("opacity", .9);		
-                            div	.html(d.data.name + "<br/>")	
-                                .style("left", (d3.event.pageX) + "px")		
-                                .style("top", (d3.event.pageY - 28) + "px");	
-                            })					
-                        .on("mouseout", function(d) {		
-                            div.transition()		
-                                .duration(500)		
-                                .style("opacity", 0);	
+                        .on("mouseover", function(d) {
+                            chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
+                                highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
+                                highlight.setAttribute('id', '${d.data.name}');
+                                highlight.setAttribute('class', 'highlighter');
+                                document.body.appendChild(highlight)`);
+                                console.log('moused over');
+                            // div.transition()
+                            //     .duration(200)
+                            //     .style("opacity", .9);
+                            // div	.html(d.data.width + d.data.name + "<br/>")	
+                            //     .style("left", (d3.event.pageX) + "px")		
+                            //     .style("top", (d3.event.pageY - 28) + "px");	
+                            })
+                        .on("mouseout", function(d) {
+                            chrome.devtools.inspectedWindow.eval(`
+                                removal = document.getElementById('${d.data.name}')
+                                removal.parentNode.removeChild(removal);
+                            `);
+                            console.log('moused out')
+                            // div.transition()		
+                            //     .duration(500)		
+                            //     .style("opacity", 0);	
                         });
 
                 
@@ -310,6 +324,7 @@ domNodes = inspect($$('body'));
                         .text(function (d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
 
                     //dejavue custom d3 functionality
+                
                     //click handler function for node text
                     function clickHandler(d) {
                         if (_panelWindow.document.getElementById("compdata")) {
@@ -387,4 +402,3 @@ domNodes = inspect($$('body'));
     updater()        
         });
 });
-
