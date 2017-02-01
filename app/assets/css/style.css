@@ -125,10 +125,6 @@ div.tooltip {
     pointer-events: none;			
 }
 
-.elementHighlight {
-  background-color: rgba(137, 196, 219, .4)
-}
-
 /* Sidebar
 ============================================================== */
 #sidebar {
@@ -182,4 +178,10 @@ div.tooltip {
 
 #sidebar a:hover {
   color: #42b983;
+}
+
+/*DOM Highlight*/
+.highlight {
+  background-color: rgba(137, 196, 219, .2);
+  z-index: 99999;
 }
