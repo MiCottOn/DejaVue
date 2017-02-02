@@ -10,7 +10,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
 
     chrome.storage.local.set({ 'states': '[]' });
-    let newData;
+    let newData = [];
     let sidebarAdded = 0;
     let count;
     let oldCount;
@@ -201,12 +201,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 // console.log('returned data', data)
 
 
-               chrome.storage.local.get(function(result) {newData = result.states}) 
-
-                console.log('new data before push', newData, data)
 
                 newData.push(data)
-                chrome.storage.local.set({ 'states': newData }, function (result) {
+               console.log('new data before push', newData, data)
+                chrome.storage.local.set({ 'states': newData }, function () {
                     drawTree(newData, _panelWindow)
                     // if (_panelWindow.document.getElementById('slider')) {
                     //     let removal = _panelWindow.document.getElementById('slider')
@@ -214,17 +212,24 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     // }
 
                     const timeTravel = function(index) {
-                        console.log('traveled through time!', newData)
-                        drawTree(newData[index], _panelWindow)
+                        console.log('traveled through time!', newData, index)
+                        let removal = _panelWindow.document.getElementById("treeVisualization");
+                        if (typeof removal === 'node') _panelWindow.document.getElementById("treeContainer").removeChild(removal);
+                        drawTree(newData, _panelWindow, index)
                     }
                     
                     let maxLength = newData.length - 1;
                     let slider = _panelWindow.document.getElementById("slider");
                     slider.setAttribute('max', maxLength);
-                    slider.addEventListener('change', function () { console.log('slider moved'); timeTravel(0) })
-
-                    let travelTo = slider.value;
-                    console.log(travelTo)
+                    slider.setAttribute('value', maxLength);
+                    const travelTo = slider.value;
+                    console.log('travelto', travelTo)
+                    slider.addEventListener('input', function () {
+                        if (travelTo === slider.value) {
+                            console.log('slider moved', travelTo);
+                            timeTravel(travelTo);
+                        } 
+                    })
 
                     
                 }) 
@@ -233,16 +238,16 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
             })
         }
-        }, 100);
+        }, 400);
     }
     updater()        
     });
     
-    const drawTree = function(data, panel) {
-        console.log('tree rerendered')
+    const drawTree = (data, panel, dataIndex = data.length) => {
+        console.log('tree rendering', data, dataIndex)
         d3 = panel.d3
         //append component data to sidebar
-        data = data[data.length - 1]
+        data = data[dataIndex - 1];
         // d3 tree creation   
             // create a name: node map
             var dataMap = data.reduce(function (map, node) {
@@ -251,7 +256,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             }, {});
 
             // create the tree array
-            var treeData = [];
+            let treeData = [];
             d3.select("svg#treeVisualization").remove()
             data.forEach(function (node) {
                 // add to parent
@@ -266,8 +271,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         treeData.push(node);
                 }
             });
-
+            console.log('treeData array', treeData)
             treeData = Object.assign({}, treeData)[0];
+            console.log('treeData object', treeData)
 
             // console.log(treeData)
             var margin = { top: 20, right: 90, bottom: 30, left: 90 },
@@ -372,6 +378,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 })
                 // remove component ID when displaying name on tree
                 .text(function (d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
+        console.log('tree rendered', data, dataIndex)
 
             //dejavue custom d3 functionality
         
