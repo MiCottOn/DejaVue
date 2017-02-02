@@ -250,6 +250,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
             // create the tree array
             let treeData = [];
+            // if (document.getElementById('treeVisualization')) {
+            //     let removal = document.getElementById('treeVisualization')
+            //     removal.parentNode.removeChild(removal);
+            // }
             d3.select("svg#treeVisualization").remove()
             data.forEach(function (node) {
                 // add to parent
@@ -278,6 +282,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             // appends a 'group' element to 'svg'
             // moves the 'group' element to the top left margin
             const svg = d3.select("#treeContainer").append("svg")
+                .attr('id', 'treeVisualization')    
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
@@ -337,7 +342,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 .attr("transform", function(d) {
                     return "translate(" + source.y0 + "," + source.x0 + ")";
                 })
-                .on('click', click);
 
             // Add Circle for the nodes
             let highlight;
@@ -348,6 +352,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 .style("fill", function(d) {
                     return d._children ? "lightsteelblue" : "#fff";
                 })
+                .on('click', click)
                 .on("mouseover", function(d) {
                 chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
                     highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
@@ -450,32 +455,33 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 d.y0 = d.y;
             });
 
-            // Creates a curved (diagonal) path from parent to the child nodes
-            function diagonal(s, d) {
+        // Creates a curved (diagonal) path from parent to the child nodes
+        function diagonal(s, d) {
+            path = `M ${s.y} ${s.x}
+                    C ${(s.y + d.y) / 2} ${s.x},
+                    ${(s.y + d.y) / 2} ${d.x},
+                    ${d.y} ${d.x}`
 
-                path = `M ${s.y} ${s.x}
-                        C ${(s.y + d.y) / 2} ${s.x},
-                        ${(s.y + d.y) / 2} ${d.x},
-                        ${d.y} ${d.x}`
-
-                return path
-            }
-
-            // Toggle children on click.
-            function click(d) {
-                if (d.children) {
-                    d._children = d.children;
-                    d.children = null;
-                } else {
-                    d.children = d._children;
-                    d._children = null;
-                }
-                update(d);
-            }
+            return path
         }
+
+        // Toggle children on click.
+        function click(d) {
+            if (d.children) {
+                d._children = d.children;
+                d.children = null;
+            } else {
+                d.children = d._children;
+                d._children = null;
+            }
+            update(d);
+        }
+        }
+        
+        // Add data to sidebar
         function clickHandler(d) {
             if (panel.document.getElementById("compdata")) {
-                let removal = _panelWindow.document.getElementById("compdata");
+                let removal = panel.document.getElementById("compdata");
                 panel.document.getElementById("componentInfo").removeChild(removal)
             }
             
