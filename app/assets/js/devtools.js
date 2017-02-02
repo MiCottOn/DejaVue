@@ -7,8 +7,6 @@
 
 
 chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', function (extensionPanel) {
-
-
     chrome.storage.local.set({ 'states': '[]' });
     let newData = [];
     let sidebarAdded = 0;
@@ -33,15 +31,13 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
         let data = []
         function updater() {
-            var poller = setInterval(function () {
+            let poller = setInterval(function () {
                 chrome.storage.sync.get('count', function(data){count = data.count})
                 if (count !== oldCount) {
                     oldCount = count;
-
-        chrome.devtools.inspectedWindow.eval(
-            `
-                domNodes = inspect($$('body'));
-                    
+                    chrome.devtools.inspectedWindow.eval(
+                `domNodes = inspect($$('body'));
+                
                 // main function to grab and plot data on visualization
                     function createDV() {
                 // gets document.body's child nodes which are direct child html elements
@@ -54,17 +50,17 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     
                 // iterate through keysArray to push only Vue root nodes into rootNodes array
                     function findRoots(node) {
-                      if (!rootNodes.includes(node) &&  node.__vue__) {
+                    if (!rootNodes.includes(node) &&  node.__vue__) {
                         rootNodes.push(node);
                         console.log('pushed')
-                      } else {
+                    } else {
                         let keysArray = Object.keys(node.children);
                         console.log('keysArray', keysArray);
                         for (let i = 0; i < keysArray.length; i++) {
-                          console.log('node.children[keysArray[i]]', node.children[keysArray[i]]);
-                          if (!rootNodes.includes(node.children[keysArray[i]])) findRoots(node.children[keysArray[i]]);
+                        console.log('node.children[keysArray[i]]', node.children[keysArray[i]]);
+                        if (!rootNodes.includes(node.children[keysArray[i]])) findRoots(node.children[keysArray[i]]);
                         }
-                      }
+                    }
                     };
                     findRoots(domNodes[0]);
                 // console.log('rootNodes', rootNodes)
@@ -164,16 +160,16 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             compElem = Object.keys(node);
                             for (let j = 0; j < compElem.length; j++) {
                                 if (compElem[j][0] !== '_' && compElem[j][0] !== '$') {
-                                    dvComponents[dvComponents.length - 1].props.push({[compElem[j]]: node[compElem[j]]});
+                                    dvComponents[dvComponents.length - 1].props.push(compElem[j]);
                                 }
                             }
                         }
                         return dvComponents;
                     };
                     createDvComps(components);
-                 console.log('rootNodes', rootNodes)
-                 console.log('components', components)
-                 console.log('deja vue components1', dvComponents)
+                console.log('rootNodes', rootNodes)
+                console.log('components', components)
+                console.log('deja vue components1', dvComponents)
                     
                 // conversion of components array to JSON object for D3 visualization  
                     data = [new treeNode({name: 'Vuee', parent: undefined})]
@@ -192,7 +188,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         data.push(new treeNode(node))
                     })
                     
-                 console.log('data', data)
+                console.log('data', data)
                         
                     return data
                 }
@@ -200,10 +196,8 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             , function (data) {
                 // console.log('returned data', data)
 
-
-
                 newData.push(data)
-               console.log('new data before push', newData, data)
+                console.log('new data before push', newData, data)
                 chrome.storage.local.set({ 'states': newData }, function () {
                     drawTree(newData, _panelWindow)
                     // if (_panelWindow.document.getElementById('slider')) {
@@ -216,26 +210,24 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         let removal = _panelWindow.document.getElementById("treeVisualization");
                         if (typeof removal === 'node') _panelWindow.document.getElementById("treeContainer").removeChild(removal);
                         drawTree(newData, _panelWindow, index)
+
                     }
                     
                     let maxLength = newData.length - 1;
                     let slider = _panelWindow.document.getElementById("slider");
                     slider.setAttribute('max', maxLength);
                     slider.setAttribute('value', maxLength);
-                    const travelTo = slider.value;
-                    console.log('travelto', travelTo)
-                    slider.addEventListener('input', function () {
-                        if (travelTo === slider.value) {
-                            console.log('slider moved', travelTo);
+
+                    let travelTo = slider.value;
+                    slider.addEventListener('change', function () {
+                        console.log('slider moved');
+                        if (count === oldCount) {
+                            chrome.storage.sync.get('count', function(data){count = data.count})
                             timeTravel(travelTo);
-                        } 
-                    })
-
-                    
+                        } else {oldCount = count}
+                    }) 
                 }) 
-                
                 chrome.storage.local.get(function(result) {console.log('local storage', result.states)})
-
             })
         }
         }, 400);
@@ -248,6 +240,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         d3 = panel.d3
         //append component data to sidebar
         data = data[dataIndex - 1];
+
         // d3 tree creation   
             // create a name: node map
             var dataMap = data.reduce(function (map, node) {
@@ -278,179 +271,273 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             // console.log(treeData)
             var margin = { top: 20, right: 90, bottom: 30, left: 90 },
                 width = 660 - margin.left - margin.right,
+
                 height = 500 - margin.top - margin.bottom;
 
-            // declares a tree layout and assigns the size
-            var treemap = d3.tree()
-                .size([height, width]);
-
-            // assigns the data to a hierarchy using parent-child relationships
-            var nodes = d3.hierarchy(treeData, function (d) {
-                return d.children;
-            });
-
-            // maps the node data to the tree layout
-            nodes = treemap(nodes);
-            // Define the div for the tooltip
-            var div = d3.select("body").append("div")	
-                .attr("class", "tooltip")				
-                .style("opacity", 0);
             // append the svg object to the body of the page
             // appends a 'group' element to 'svg'
             // moves the 'group' element to the top left margin
-            var svg = d3.select("#treeContainer").append("svg")
-                .attr("id", "treeVisualization")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom),
-                g = svg.append("g")
-                    .attr("transform",
-                    "translate(" + margin.left + "," + margin.top + ")");
+            const svg = d3.select("#treeContainer").append("svg")
+                .attr("width", width + margin.right + margin.left)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate("
+                    + margin.left + "," + margin.top + ")");
 
-            d3.selection.prototype.first = function () {
-                return d3.select(this[0][0]);
-            };
+            let i = 0,
+                duration = 500,
+                root;
 
-            // adds the links between the nodes
-            var link = g.selectAll(".link")
-                .data(nodes.descendants().slice(1))
-                .enter().append("path")
-                .attr("class", "link")
-                .attr("d", function (d) {
-                    return "M" + d.y + "," + d.x
-                        + "C" + (d.y + d.parent.y) / 2 + "," + d.x
-                        + " " + (d.y + d.parent.y) / 2 + "," + d.parent.x
-                        + " " + d.parent.y + "," + d.parent.x;
-                });
+            // declares a tree layout and assigns the size
+            const treemap = d3.tree().size([height, width])
+            .separation(function separation(a, b) {
+                return a.parent == b.parent ? 1 : 2;
+            });;
 
-            // adds each node as a group
-            var node = g.selectAll(".node")
-                .data(nodes.descendants())
-                .enter().append("g")
-                .attr("class", function (d) {
-                    return "node" +
-                        (d.children ? " node--internal" : " node--leaf");
+            // Assigns parent, children, height, depth
+            root = d3.hierarchy(treeData, function(d) { return d.children; });
+            root.x0 = height / 4;
+            root.y0 = 0;
+
+            // Collapse after the second level
+            // root.children.forEach(collapse);
+
+            update(root);
+
+            // Collapse the node and all it's children
+            function collapse(d) {
+            if(d.children) {
+                d._children = d.children
+                d._children.forEach(collapse)
+                d.children = null
+            }
+            }
+
+            function update(source) {
+
+            // Assigns the x and y position for the nodes
+            const treeData = treemap(root);
+
+            // Compute the new tree layout.
+            const nodes = treeData.descendants(),
+                links = treeData.descendants().slice(1);
+
+            // Normalize for fixed-depth.
+            nodes.forEach(function(d){ d.y = d.depth * 90});
+
+            // ****************** Nodes section ***************************
+
+            // Update the nodes...
+            let node = svg.selectAll('g.node')
+                .data(nodes, function(d) {return d.id || (d.id = ++i); });
+
+            // Enter any new modes at the parent's previous position.
+            const nodeEnter = node.enter().append('g')
+                .attr('class', 'node')
+                .attr("transform", function(d) {
+                    return "translate(" + source.y0 + "," + source.x0 + ")";
                 })
-                .attr("transform", function (d) {
-                    return "translate(" + d.y + "," + d.x + ")";
-                });
+                .on('click', click);
+
+            // Add Circle for the nodes
             let highlight;
             let removal;
-            // adds the circle to the node
-            node.append("circle")
-                .attr("r", 10)
+            nodeEnter.append('circle')
+                .attr('class', 'node')
+                .attr('r', 1e-6)
+                .style("fill", function(d) {
+                    return d._children ? "lightsteelblue" : "#fff";
+                })
                 .on("mouseover", function(d) {
-                    chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
-                        highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
-                        highlight.setAttribute('id', '${d.data.name}');
-                        highlight.setAttribute('class', 'highlighter');
-                        document.body.appendChild(highlight)`);
-                        console.log('moused over');
-                    // div.transition()
-                    //     .duration(200)
-                    //     .style("opacity", .9);
-                    // div	.html(d.data.width + d.data.name + "<br/>")	
-                    //     .style("left", (d3.event.pageX) + "px")		
-                    //     .style("top", (d3.event.pageY - 28) + "px");	
-                    })
-                .on("mouseout", function(d) {
-                    chrome.devtools.inspectedWindow.eval(`
-                        removal = document.getElementById('${d.data.name}')
-                        removal.parentNode.removeChild(removal);
-                    `);
-                    console.log('moused out')
-                    // div.transition()		
-                    //     .duration(500)		
-                    //     .style("opacity", 0);	
+                chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
+                    highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
+                    highlight.setAttribute('id', '${d.data.name}');
+                    highlight.setAttribute('class', 'highlighter');
+                    document.body.appendChild(highlight)`);
+                    console.log('moused over');
+                }).on("mouseout", function(d) {
+                chrome.devtools.inspectedWindow.eval(`
+                    removal = document.getElementById('${d.data.name}')
+                    removal.parentNode.removeChild(removal);
+                `);
+                console.log('moused out')	
+            });
+
+            // Add labels for the nodes
+            nodeEnter.append('text')
+                .attr("dy", ".35em")
+                .attr("x", function(d) {
+                    return d.children || d._children ? -13 : 13;
+                })
+                .attr("text-anchor", function(d) {
+                    return d.children || d._children ? "end" : "start";
+                })
+                .on("click", function (d) {
+                clickHandler(d);
+                })
+                .text(function(d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-"))});
+
+            // UPDATE
+            let nodeUpdate = nodeEnter.merge(node);
+
+            // Transition to the proper position for the node
+            nodeUpdate.transition()
+                .duration(duration)
+                .attr("transform", function(d) { 
+                    return "translate(" + d.y + "," + d.x + ")";
                 });
 
-        
-
-        
-            // adds the text to the node
-            node.append("text")
-                .attr("dy", ".35em")
-                .attr("x", function (d) { return d.children ? -13 : 13; })
-                .on("click", function (d) {
-                    clickHandler(d);
+            // Update the node attributes and style
+            nodeUpdate.select('circle.node')
+                .attr('r', 10)
+                .style("fill", function(d) {
+                    return d._children ? "lightsteelblue" : "#fff";
                 })
-                .style("text-anchor", function (d) {
-                    return d.children ? "end" : "start";
-                })
-                // remove component ID when displaying name on tree
-                .text(function (d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
-        console.log('tree rendered', data, dataIndex)
 
-            //dejavue custom d3 functionality
-        
-            //click handler function for node text
-            function clickHandler(d) {
-                if (panel.document.getElementById("compdata")) {
-                    let removal = _panelWindow.document.getElementById("compdata");
-                    panel.document.getElementById("componentInfo").removeChild(removal)
+                .attr('cursor', 'pointer');
+
+
+            // Remove any exiting nodes
+            const nodeExit = node.exit().transition()
+                .duration(duration)
+                .attr("transform", function(d) {
+                    return "translate(" + source.y + "," + source.x + ")";
+                })
+                .remove();
+
+            // On exit reduce the node circles size to 0
+            nodeExit.select('circle')
+                .attr('r', 1e-6);
+
+            // On exit reduce the opacity of text labels
+            nodeExit.select('text')
+                .style('fill-opacity', 1e-6);
+
+            // ****************** links section ***************************
+
+            // Update the links...
+            const link = svg.selectAll('path.link')
+                .data(links, function(d) { return d.id; });
+
+            // Enter any new links at the parent's previous position.
+            const linkEnter = link.enter().insert('path', "g")
+                .attr("class", "link")
+                .attr('d', function(d){
+                    var o = {x: source.x0, y: source.y0}
+                    return diagonal(o, o)
+                });
+
+            // UPDATE
+            const linkUpdate = linkEnter.merge(link);
+
+            // Transition back to the parent element position
+            linkUpdate.transition()
+                .duration(duration)
+                .attr('d', function(d){ return diagonal(d, d.parent) });
+
+            // Remove any exiting links
+            const linkExit = link.exit().transition()
+                .duration(duration)
+                .attr('d', function(d) {
+                    var o = {x: source.x, y: source.y}
+                    return diagonal(o, o)
+                })
+                .remove();
+
+            // Store the old positions for transition.
+            nodes.forEach(function(d){
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+
+            // Creates a curved (diagonal) path from parent to the child nodes
+            function diagonal(s, d) {
+
+                path = `M ${s.y} ${s.x}
+                        C ${(s.y + d.y) / 2} ${s.x},
+                        ${(s.y + d.y) / 2} ${d.x},
+                        ${d.y} ${d.x}`
+
+                return path
+            }
+
+            // Toggle children on click.
+            function click(d) {
+                if (d.children) {
+                    d._children = d.children;
+                    d.children = null;
+                } else {
+                    d.children = d._children;
+                    d._children = null;
                 }
-                
-                    let divv = document.createElement("div");
-                    divv.setAttribute('id', 'compdata');
-                    divv.innerHTML = `
+                update(d);
+            }
+        }
+        function clickHandler(d) {
+            if (panel.document.getElementById("compdata")) {
+                let removal = _panelWindow.document.getElementById("compdata");
+                panel.document.getElementById("componentInfo").removeChild(removal)
+            }
+            
+                let divv = document.createElement("div");
+                divv.setAttribute('id', 'compdata');
+                divv.innerHTML = `
 
-                            <h3>${d.data.name}</h3>
-                            <h4>Props</h4>
-                            <ul id="${d.data.name}Props">
+                        <h3>${d.data.name}</h3>
+                        <h4>Props</h4>
+                        <ul id="${d.data.name}Props">
 
-                            </ul>
-                            <h4>Vars</h4>
-                            <ul id="${d.data.name}Variables">
+                        </ul>
+                        <h4>Vars</h4>
+                        <ul id="${d.data.name}Variables">
 
-                            </ul>
-                            <h4>Slot</h4>
-                            <ul>
-                                <li><p>${(d.data.slots) ? d.data.slots : "No slot/data"}</p></li>
-                            </ul>
+                        </ul>
+                        <h4>Slot</h4>
+                        <ul>
+                            <li><p>${(d.data.slots) ? d.data.slots : "No slot/data"}</p></li>
+                        </ul>
 
-                        `;
-                
-                    panel.document.getElementById("componentInfo").appendChild(divv);
-                
-                //populate variables on sidebar
-                    let variableList = panel.document.getElementById(d.data.name + "Variables");
-                    if (d.data.variables === "undefined") {
+                    `;
+                panel.document.getElementById("componentInfo").appendChild(divv);
+            
+            //populate variables on sidebar
+                let variableList = panel.document.getElementById(d.data.name + "Variables");
+                if (d.data.variables === "undefined") {
+                        let variable = document.createElement("li");
+                        variable.setAttribute('id', d.data.name + 'VariableUndefined');
+                        variable.innerHTML = "undefined";
+                        variableList.appendChild(variable);
+                }
+                else {
+                    for (let i = 0; i < d.data.variables.length; i += 1) {
+                        for (key in d.data.variables[i]) {
                             let variable = document.createElement("li");
-                            variable.setAttribute('id', d.data.name + 'VariableUndefined');
-                            variable.innerHTML = "undefined";
+                            variable.setAttribute('id', d.data.name[key] + 'Variable');
+                            variable.innerHTML = (typeof d.data.variables[i][key] === 'object') ? key + ": Function" : key + ": " + d.data.variables[i][key];
                             variableList.appendChild(variable);
-                    }
-                    else {
-                        for (let i = 0; i < d.data.variables.length; i += 1) {
-                            for (key in d.data.variables[i]) {
-                                let variable = document.createElement("li");
-                                variable.setAttribute('id', d.data.name[key] + 'Variable');
-                                variable.innerHTML = (typeof d.data.variables[i][key] === 'object') ? key + ": Function" : key + ": " + d.data.variables[i][key];
-                                variableList.appendChild(variable);
-                            }
                         }
-                    };
-                
-                //populate props on sidebar
-                    let propList = panel.document.getElementById(d.data.name + "Props");
-                    if (d.data.props === "undefined") {
+                    }
+                };
+            
+            //populate props on sidebar
+                let propList = panel.document.getElementById(d.data.name + "Props");
+                if (d.data.props === "undefined") {
+                        let prop = document.createElement("li");
+                        prop.setAttribute('id', d.data.name + 'PropUndefined');
+                        prop.innerHTML = "undefined";
+                        propList.appendChild(prop);
+                }
+                else {
+                    for (let i = 0; i < d.data.props.length; i += 1) {
+                        for (key in d.data.props[i]) {
+                            console.log(typeof d.data.props[i][key])
                             let prop = document.createElement("li");
-                            prop.setAttribute('id', d.data.name + 'PropUndefined');
-                            prop.innerHTML = "undefined";
+                            prop.setAttribute('id', d.data.name[key] + 'Prop');
+                            prop.innerHTML = (typeof d.data.props[i][key] === 'object') ? key + ": Function" : key + ": " + d.data.props[i][key];
                             propList.appendChild(prop);
-                    }
-                    else {
-                        for (let i = 0; i < d.data.props.length; i += 1) {
-                            for (key in d.data.props[i]) {
-                                console.log(typeof d.data.props[i][key])
-                                let prop = document.createElement("li");
-                                prop.setAttribute('id', d.data.name[key] + 'Prop');
-                                prop.innerHTML = (typeof d.data.props[i][key] === 'object') ? key + ": Function" : key + ": " + d.data.props[i][key];
-                                propList.appendChild(prop);
-                            }
                         }
-                    };
-
+                    }
+                };
             }
         }
 });
-
