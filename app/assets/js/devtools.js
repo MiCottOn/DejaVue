@@ -10,7 +10,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
 
     chrome.storage.local.set({ 'states': '[]' });
-    let newData;
+    let newData = [];
     let sidebarAdded = 0;
     let count;
     let oldCount;
@@ -164,7 +164,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             compElem = Object.keys(node);
                             for (let j = 0; j < compElem.length; j++) {
                                 if (compElem[j][0] !== '_' && compElem[j][0] !== '$') {
-                                    dvComponents[dvComponents.length - 1].props.push({[compElem[j]]: node[compElem[j]]});
+                                    dvComponents[dvComponents.length - 1].props.push(compElem[j]);
                                 }
                             }
                         }
@@ -201,12 +201,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 // console.log('returned data', data)
 
 
-               chrome.storage.local.get(function(result) {newData = result.states}) 
-
-                console.log('new data before push', newData, data)
 
                 newData.push(data)
-                chrome.storage.local.set({ 'states': newData }, function (result) {
+               console.log('new data before push', newData, data)
+                chrome.storage.local.set({ 'states': newData }, function () {
                     drawTree(newData, _panelWindow)
                     // if (_panelWindow.document.getElementById('slider')) {
                     //     let removal = _panelWindow.document.getElementById('slider')
@@ -214,17 +212,22 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     // }
 
                     const timeTravel = function(index) {
-                        console.log('traveled through time!', newData)
+                        console.log('traveled through time!', newData, index)
                         drawTree(newData[index], _panelWindow)
                     }
                     
                     let maxLength = newData.length - 1;
                     let slider = _panelWindow.document.getElementById("slider");
                     slider.setAttribute('max', maxLength);
-                    slider.addEventListener('change', function () { console.log('slider moved'); timeTravel(0) })
-
+                    slider.setAttribute('value', maxLength);
                     let travelTo = slider.value;
-                    console.log(travelTo)
+                    slider.addEventListener('change', function () {
+                        console.log('slider moved');
+                        if (count === oldCount) {
+                            chrome.storage.sync.get('count', function(data){count = data.count})
+                            timeTravel(travelTo);
+                        } else {oldCount = count}
+                    })
 
                     
                 }) 
@@ -233,16 +236,16 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
             })
         }
-        }, 100);
+        }, 400);
     }
     updater()        
     });
     
-    const drawTree = function(data, panel) {
-        console.log('tree rerendered')
+    const drawTree = (data, panel) => {
+        console.log('tree rerendered', data)
         d3 = panel.d3
         //append component data to sidebar
-        data = data[data.length - 1]
+        if (Array.isArray(data[0])) data = data[data.length - 1];
         // d3 tree creation   
             // create a name: node map
             var dataMap = data.reduce(function (map, node) {
@@ -401,7 +404,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             </ul>
 
                         `;
-                
                     panel.document.getElementById("componentInfo").appendChild(divv);
                 
                 //populate variables on sidebar
@@ -446,4 +448,5 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             }
         }
 });
+
 
