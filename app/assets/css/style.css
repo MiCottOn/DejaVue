@@ -130,31 +130,11 @@ div.tooltip {
 #sidebar {
   position: absolute;
   height: auto;
-  top: 40px;
+  top: 80px;
   right: 0;
-  width: 180px;
-  min-height: calc(100vh - 40px);
+  width: 200px;
   background: rgba(44, 62, 80, .90);
-  padding-top: 65px;
   color: #FAFAFA;
-}
-
-.toggle-drawer {
-  position: absolute;
-  top: 50px;
-  right: 40px;
-  display: block;
-  width: 100px;
-  height: 32px;
-  border-radius: 5px;
-  text-align: center;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: #42b983;
-  z-index: 5;
-  border: 1px solid #42b983;
-  font-size: 11px;
-  line-height: 32px;
 }
 
 .layer-1 {
@@ -164,15 +144,22 @@ div.tooltip {
 }
 #sidebar li {
   display: block;
+  padding: 8px 10px;
 }
 
 #sidebar h2 {
-  color: #42b983;
+  padding: 15px 10px;
+  background: #42b983;
+  color: white;
+  font-size: 16px;
+  margin-bottom: 15px;
   font-weight: bold;
+  text-align: left;
 }
 #sidebar a {
   display: block;
   padding: 8px;
+  font-size: 18px;
   color: white;
 }
 
@@ -180,6 +167,13 @@ div.tooltip {
   color: #42b983;
 }
 
+#close_sidebar {
+  position: absolute;
+  top: 0; 
+  right: 0;
+  margin-top: -8px;
+  color: #42b983;
+}
 /*DOM Highlight*/
 .highlight {
   background-color: rgba(137, 196, 219, .2);

@@ -499,19 +499,20 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     }
                     update(d);
                 }
-            }
-        
-            // Add data to sidebar
             function clickHandler(d) {
-                if (panel.document.getElementById("compdata")) {
-                    let removal = panel.document.getElementById("compdata");
-                    panel.document.getElementById("componentInfo").removeChild(removal)
+							// if it's already open, remove it and create a new one
+                if (panel.document.getElementById('sidebar')){
+                    closeSidebar();
                 }
-            
-                let divv = document.createElement("div");
-                divv.setAttribute('id', 'compdata');
-                divv.innerHTML = `
+                const sidebar = document.createElement('section');
+                sidebar.setAttribute('id', 'sidebar');
 
+								// populate the section with our headings
+                const contentdiv = document.createElement('div');
+								contentdiv.setAttribute('id', 'app_content');
+                contentdiv.innerHTML = `
+                        <a href="#" id="close_sidebar">X</a>
+                        <h2>Component Inspector</h2>
                         <h3>${d.data.name.slice(0, d.data.name.lastIndexOf("-"))}</h3>
                         <h4>Props</h4>
                         <ul id="${d.data.name}Props">
@@ -525,11 +526,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         <ul>
                             <li><p>${(d.data.slots) ? d.data.slots : "No slot/data"}</p></li>
                         </ul>
-
                     `;
-                panel.document.getElementById("componentInfo").appendChild(divv);
-            
-                //populate variables on sidebar
+                panel.document.getElementById('contentContainer').appendChild(sidebar);
+                panel.document.getElementById('sidebar').appendChild(contentdiv);
+
+                // add an event listener
+                panel.document.getElementById('close_sidebar').addEventListener('click', closeSidebar)
+                
+								// populate the headings with the component data
                 let variableList = panel.document.getElementById(d.data.name + "Variables");
                 if (d.data.variables === "undefined") {
                     let variable = document.createElement("li");
@@ -548,23 +552,28 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     }
                 };
             
-                //populate props on sidebar
+            //populate props on sidebar
                 let propList = panel.document.getElementById(d.data.name + "Props");
                 if (d.data.props === "undefined") {
-                    let prop = document.createElement("li");
-                    prop.setAttribute('id', d.data.name + 'PropUndefined');
-                    prop.innerHTML = "undefined";
-                    propList.appendChild(prop);
+                        let prop = document.createElement("li");
+                        prop.setAttribute('id', d.data.name + 'PropUndefined');
+                        prop.innerHTML = "undefined";
+                        propList.appendChild(prop);
                 }
                 else {
                     for (let i = 0; i < d.data.props.length; i += 1) {
-                            let prop = document.createElement("li");
-                            prop.setAttribute('id', d.data.name[key] + 'Prop');
-                            prop.innerHTML = d.data.props[i];
-                            propList.appendChild(prop);
+                        let prop = document.createElement("li");
+                        prop.setAttribute('id', d.data.name[key] + 'Prop');
+                        prop.innerHTML = d.data.props[i];
+                        propList.appendChild(prop);
                     }
                 };
-            }
+				function closeSidebar() {
+				    const remove = panel.document.getElementById("sidebar");
+                    panel.document.getElementById('contentContainer').removeChild(remove);
+				}
+        	}
         }
     }
+}
 });

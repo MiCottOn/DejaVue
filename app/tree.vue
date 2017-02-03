@@ -1,13 +1,6 @@
 <template>
   <div id="treeContainer">
-
-    <div id="sidebar">
-      <ul class="components" id="componentInfo">
-        <h2>Component Inspector</h2>
-      </ul>
-    </div>
-  </div>
-  
+  </div> 
 </template>
 
 <script>
