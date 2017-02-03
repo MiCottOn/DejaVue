@@ -159,9 +159,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             }    
                             
                             compElem = Object.keys(node);
+                            compVals = Object.values(node);
                             for (let j = 0; j < compElem.length; j++) {
                                 if (compElem[j][0] !== '_' && compElem[j][0] !== '$') {
-                                    dvComponents[dvComponents.length - 1].props.push(compElem[j]);
+                                    if (typeof compVals[j] === 'function') dvComponents[dvComponents.length - 1].props.push(compElem[j] + ': Function');
+                                    else if (Array.isArray(compVals[j])) dvComponents[dvComponents.length - 1].props.push(compElem[j] + ': ' + compVals[j]);
+                                    else dvComponents[dvComponents.length - 1].props.push(compElem[j] + ': ' + compVals[j]);
                                 }
                             }
                         }
@@ -509,7 +512,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 divv.setAttribute('id', 'compdata');
                 divv.innerHTML = `
 
-                        <h3>${d.data.name}</h3>
+                        <h3>${d.data.name.slice(0, d.data.name.lastIndexOf("-"))}</h3>
                         <h4>Props</h4>
                         <ul id="${d.data.name}Props">
 
@@ -555,13 +558,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 }
                 else {
                     for (let i = 0; i < d.data.props.length; i += 1) {
-                        for (key in d.data.props[i]) {
-                            console.log(typeof d.data.props[i][key])
                             let prop = document.createElement("li");
                             prop.setAttribute('id', d.data.name[key] + 'Prop');
-                            prop.innerHTML = (typeof d.data.props[i][key] === 'object') ? key + ": Function" : key + ": " + d.data.props[i][key];
+                            prop.innerHTML = d.data.props[i];
                             propList.appendChild(prop);
-                        }
                     }
                 };
             }
