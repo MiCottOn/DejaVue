@@ -130,7 +130,7 @@ div.tooltip {
 #sidebar {
   position: absolute;
   height: auto;
-  top: 80px;
+  top: 40px;
   right: 0;
   width: 200px;
   background: rgba(44, 62, 80, .90);
@@ -156,24 +156,38 @@ div.tooltip {
   font-weight: bold;
   text-align: left;
 }
-#sidebar a {
-  display: block;
-  padding: 8px;
-  font-size: 18px;
-  color: white;
-}
-
-#sidebar a:hover {
-  color: #42b983;
-}
-
 #close_sidebar {
+  display: block;
+  color: white;
+  width: 16px;
+  height: 16px;
   position: absolute;
-  top: 0; 
-  right: 0;
-  margin-top: -8px;
-  color: #42b983;
+  top: 10px; 
+  right: 5px;
+  z-index: 10;
 }
+
+#close_sidebar:before, #close_sidebar:after {
+  content: '';
+  display: block;
+  width: 12px;
+  height: 2px;
+  background: white;
+  position: absolute;
+  top: 0;
+  right: 0;
+  transition: background .3s ease;
+  z-index: 20;
+}
+
+#close_sidebar:before {
+  transform: rotate(45deg);
+}
+
+#close_sidebar:after {
+  transform: rotate(315deg)
+}
+
 /*DOM Highlight*/
 .highlight {
   background-color: rgba(137, 196, 219, .2);

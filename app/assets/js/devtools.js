@@ -511,7 +511,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 const contentdiv = document.createElement('div');
 								contentdiv.setAttribute('id', 'app_content');
                 contentdiv.innerHTML = `
-                        <a href="#" id="close_sidebar">X</a>
+                        <a href="#" id="close_sidebar"></a>
                         <h2>Component Inspector</h2>
                         <h3>${d.data.name.slice(0, d.data.name.lastIndexOf("-"))}</h3>
                         <h4>Props</h4>
@@ -563,7 +563,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 else {
                     for (let i = 0; i < d.data.props.length; i += 1) {
                         let prop = document.createElement("li");
-                        prop.setAttribute('id', d.data.name[key] + 'Prop');
+                        prop.setAttribute('id', d.data.name + 'Prop');
                         prop.innerHTML = d.data.props[i];
                         propList.appendChild(prop);
                     }
