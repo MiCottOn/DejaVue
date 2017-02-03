@@ -195,53 +195,77 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 createDV()`
             , function (data) {
                 // console.log('returned data', data)
-
                 newData.push(data)
-                console.log('new data before push', newData, data)
-                chrome.storage.local.set({ 'states': newData }, function () {
-                    drawTree(newData, _panelWindow)
-                    // if (_panelWindow.document.getElementById('slider')) {
-                    //     let removal = _panelWindow.document.getElementById('slider')
-                    //     _panelWindow.document.getElementById('treeContainer').removeChild(removal)
-                    // }
+                console.log('new data after push', newData)
+                chrome.storage.local.set({ 'states': newData });
+                let rangeData;
+                chrome.storage.local.get('states', function (result) {
+                    console.log('get data', result.states)
+                    rangeData = result.states
+                    drawTree(result.states, _panelWindow)
+                })
 
-                    const timeTravel = function(index) {
-                        console.log('traveled through time!', newData, index)
-                        let removal = _panelWindow.document.getElementById("treeVisualization");
-                        if (typeof removal === 'node') _panelWindow.document.getElementById("treeContainer").removeChild(removal);
-                        drawTree(newData, _panelWindow, index)
+                function onRangeChange(rangeInputElmt, listener) {
 
-                    }
+                    var inputEvtHasNeverFired = true;
+
+                    var rangeValue = {current: undefined, mostRecent: undefined};
                     
-                    let maxLength = newData.length - 1;
-                    let slider = _panelWindow.document.getElementById("slider");
-                    slider.setAttribute('max', maxLength);
-                    slider.setAttribute('value', maxLength);
+                    rangeInputElmt.addEventListener("input", function(evt) {
+                        inputEvtHasNeverFired = false;
+                        rangeValue.current = evt.target.value;
+                        if (rangeValue.current !== rangeValue.mostRecent) {
+                            
+                            listener(rangeValue.current);
+                        }
+                        rangeValue.mostRecent = rangeValue.current;
+                    });
 
-                    let travelTo = slider.value;
-                    slider.addEventListener('change', function () {
-                        console.log('slider moved');
-                        if (count === oldCount) {
-                            chrome.storage.sync.get('count', function(data){count = data.count})
-                            timeTravel(travelTo);
-                        } else {oldCount = count}
-                    }) 
-                }) 
-                chrome.storage.local.get(function(result) {console.log('local storage', result.states)})
+                    rangeInputElmt.addEventListener("change", function(evt) {
+                        if (inputEvtHasNeverFired) {
+                            listener(evt.target.value);
+                        }
+                    }); 
+
+                }                    
+
+                const timeTravel = function(index) {
+                    chrome.storage.local.get('states', function (result) {
+                        console.log('get data', result.states)
+                        rangeData = result.states
+                        drawTree(result.states, _panelWindow, index)
+                    })
+                }
+                
+                let maxLength = newData.length - 1;
+                let slider = _panelWindow.document.getElementById("slider");
+                slider.setAttribute('max', maxLength);
+                slider.setAttribute('value', maxLength);
+
+                onRangeChange(slider, timeTravel);
+
             })
         }
-        }, 400);
+        }, 100);
     }
     updater()        
     });
-    
-    const drawTree = (data, panel, dataIndex = data.length) => {
-        console.log('tree rendering', data, dataIndex)
-        d3 = panel.d3
-        //append component data to sidebar
-        data = data[dataIndex - 1];
 
-        // d3 tree creation   
+    let dataCompare = -Infinity;
+    
+    const drawTree = (data, panel, dataIndex = data.length - 1) => {
+            console.log('dataCompare', dataCompare, 'data', dataIndex)
+
+        if (dataCompare !== dataIndex) {
+            console.log('dataCompare2', dataCompare, 'data2', dataIndex)
+            dataCompare = dataIndex;
+        
+            console.log('tree rendering', data, dataIndex)
+            d3 = panel.d3
+            //append component data to sidebar
+            data = data[dataIndex];
+            console.log('data before dataMap', data)
+            // d3 tree creation   
             // create a name: node map
             var dataMap = data.reduce(function (map, node) {
                 map[node.name] = node;
@@ -259,13 +283,13 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 // add to parent
                 var parent = dataMap[node.parent];
                 if (parent) {
-                // create child array if it doesn't exist
+                    // create child array if it doesn't exist
                     (parent.children || (parent.children = []))
-                // add node to child array if not already in it (prevents doubling of tree when switching between devtool panels)
-                        parent.children.push(node);
+                    // add node to child array if not already in it (prevents doubling of tree when switching between devtool panels)
+                    parent.children.push(node);
                 } else {
-                // parent is null or missing from treeData - if not already in it (prevents doubling of tree when switching between devtool panels)
-                        treeData.push(node);
+                    // parent is null or missing from treeData - if not already in it (prevents doubling of tree when switching between devtool panels)
+                    treeData.push(node);
                 }
             });
             console.log('treeData array', treeData)
@@ -282,12 +306,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             // appends a 'group' element to 'svg'
             // moves the 'group' element to the top left margin
             const svg = d3.select("#treeContainer").append("svg")
-                .attr('id', 'treeVisualization')    
+                .attr('id', 'treeVisualization')
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", "translate("
-                    + margin.left + "," + margin.top + ")");
+                + margin.left + "," + margin.top + ")");
 
             let i = 0,
                 duration = 500,
@@ -295,12 +319,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
             // declares a tree layout and assigns the size
             const treemap = d3.tree().size([height, width])
-            .separation(function separation(a, b) {
-                return a.parent == b.parent ? 1 : 2;
-            });;
+                .separation(function separation(a, b) {
+                    return a.parent == b.parent ? 1 : 2;
+                });;
 
             // Assigns parent, children, height, depth
-            root = d3.hierarchy(treeData, function(d) { return d.children; });
+            root = d3.hierarchy(treeData, function (d) { return d.children; });
             root.x0 = height / 4;
             root.y0 = 0;
 
@@ -311,179 +335,179 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
             // Collapse the node and all it's children
             function collapse(d) {
-            if(d.children) {
-                d._children = d.children
-                d._children.forEach(collapse)
-                d.children = null
-            }
+                if (d.children) {
+                    d._children = d.children
+                    d._children.forEach(collapse)
+                    d.children = null
+                }
             }
 
             function update(source) {
 
-            // Assigns the x and y position for the nodes
-            const treeData = treemap(root);
+                // Assigns the x and y position for the nodes
+                const treeData = treemap(root);
 
-            // Compute the new tree layout.
-            const nodes = treeData.descendants(),
-                links = treeData.descendants().slice(1);
+                // Compute the new tree layout.
+                const nodes = treeData.descendants(),
+                    links = treeData.descendants().slice(1);
 
-            // Normalize for fixed-depth.
-            nodes.forEach(function(d){ d.y = d.depth * 90});
+                // Normalize for fixed-depth.
+                nodes.forEach(function (d) { d.y = d.depth * 90 });
 
-            // ****************** Nodes section ***************************
+                // ****************** Nodes section ***************************
 
-            // Update the nodes...
-            let node = svg.selectAll('g.node')
-                .data(nodes, function(d) {return d.id || (d.id = ++i); });
+                // Update the nodes...
+                let node = svg.selectAll('g.node')
+                    .data(nodes, function (d) { return d.id || (d.id = ++i); });
 
-            // Enter any new modes at the parent's previous position.
-            const nodeEnter = node.enter().append('g')
-                .attr('class', 'node')
-                .attr("transform", function(d) {
-                    return "translate(" + source.y0 + "," + source.x0 + ")";
-                })
+                // Enter any new modes at the parent's previous position.
+                const nodeEnter = node.enter().append('g')
+                    .attr('class', 'node')
+                    .attr("transform", function (d) {
+                        return "translate(" + source.y0 + "," + source.x0 + ")";
+                    })
 
-            // Add Circle for the nodes
-            let highlight;
-            let removal;
-            nodeEnter.append('circle')
-                .attr('class', 'node')
-                .attr('r', 1e-6)
-                .style("fill", function(d) {
-                    return d._children ? "lightsteelblue" : "#fff";
-                })
-                .on('click', click)
-                .on("mouseover", function(d) {
-                chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
+                // Add Circle for the nodes
+                let highlight;
+                let removal;
+                nodeEnter.append('circle')
+                    .attr('class', 'node')
+                    .attr('r', 1e-6)
+                    .style("fill", function (d) {
+                        return d._children ? "lightsteelblue" : "#fff";
+                    })
+                    .on('click', click)
+                    .on("mouseover", function (d) {
+                        chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
                     highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
                     highlight.setAttribute('id', '${d.data.name}');
                     highlight.setAttribute('class', 'highlighter');
                     document.body.appendChild(highlight)`);
-                    console.log('moused over');
-                }).on("mouseout", function(d) {
-                chrome.devtools.inspectedWindow.eval(`
+                        console.log('moused over');
+                    }).on("mouseout", function (d) {
+                        chrome.devtools.inspectedWindow.eval(`
                     removal = document.getElementById('${d.data.name}')
                     removal.parentNode.removeChild(removal);
                 `);
-                console.log('moused out')	
-            });
+                        console.log('moused out')
+                    });
 
-            // Add labels for the nodes
-            nodeEnter.append('text')
-                .attr("dy", ".35em")
-                .attr("x", function(d) {
-                    return d.children || d._children ? -13 : 13;
-                })
-                .attr("text-anchor", function(d) {
-                    return d.children || d._children ? "end" : "start";
-                })
-                .on("click", function (d) {
-                clickHandler(d);
-                })
-                .text(function(d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-"))});
+                // Add labels for the nodes
+                nodeEnter.append('text')
+                    .attr("dy", ".35em")
+                    .attr("x", function (d) {
+                        return d.children || d._children ? -13 : 13;
+                    })
+                    .attr("text-anchor", function (d) {
+                        return d.children || d._children ? "end" : "start";
+                    })
+                    .on("click", function (d) {
+                        clickHandler(d);
+                    })
+                    .text(function (d) { return d.data.name.slice(0, d.data.name.lastIndexOf("-")) });
 
-            // UPDATE
-            let nodeUpdate = nodeEnter.merge(node);
+                // UPDATE
+                let nodeUpdate = nodeEnter.merge(node);
 
-            // Transition to the proper position for the node
-            nodeUpdate.transition()
-                .duration(duration)
-                .attr("transform", function(d) { 
-                    return "translate(" + d.y + "," + d.x + ")";
+                // Transition to the proper position for the node
+                nodeUpdate.transition()
+                    .duration(duration)
+                    .attr("transform", function (d) {
+                        return "translate(" + d.y + "," + d.x + ")";
+                    });
+
+                // Update the node attributes and style
+                nodeUpdate.select('circle.node')
+                    .attr('r', 10)
+                    .style("fill", function (d) {
+                        return d._children ? "lightsteelblue" : "#fff";
+                    })
+
+                    .attr('cursor', 'pointer');
+
+
+                // Remove any exiting nodes
+                const nodeExit = node.exit().transition()
+                    .duration(duration)
+                    .attr("transform", function (d) {
+                        return "translate(" + source.y + "," + source.x + ")";
+                    })
+                    .remove();
+
+                // On exit reduce the node circles size to 0
+                nodeExit.select('circle')
+                    .attr('r', 1e-6);
+
+                // On exit reduce the opacity of text labels
+                nodeExit.select('text')
+                    .style('fill-opacity', 1e-6);
+
+                // ****************** links section ***************************
+
+                // Update the links...
+                const link = svg.selectAll('path.link')
+                    .data(links, function (d) { return d.id; });
+
+                // Enter any new links at the parent's previous position.
+                const linkEnter = link.enter().insert('path', "g")
+                    .attr("class", "link")
+                    .attr('d', function (d) {
+                        var o = { x: source.x0, y: source.y0 }
+                        return diagonal(o, o)
+                    });
+
+                // UPDATE
+                const linkUpdate = linkEnter.merge(link);
+
+                // Transition back to the parent element position
+                linkUpdate.transition()
+                    .duration(duration)
+                    .attr('d', function (d) { return diagonal(d, d.parent) });
+
+                // Remove any exiting links
+                const linkExit = link.exit().transition()
+                    .duration(duration)
+                    .attr('d', function (d) {
+                        var o = { x: source.x, y: source.y }
+                        return diagonal(o, o)
+                    })
+                    .remove();
+
+                // Store the old positions for transition.
+                nodes.forEach(function (d) {
+                    d.x0 = d.x;
+                    d.y0 = d.y;
                 });
 
-            // Update the node attributes and style
-            nodeUpdate.select('circle.node')
-                .attr('r', 10)
-                .style("fill", function(d) {
-                    return d._children ? "lightsteelblue" : "#fff";
-                })
-
-                .attr('cursor', 'pointer');
-
-
-            // Remove any exiting nodes
-            const nodeExit = node.exit().transition()
-                .duration(duration)
-                .attr("transform", function(d) {
-                    return "translate(" + source.y + "," + source.x + ")";
-                })
-                .remove();
-
-            // On exit reduce the node circles size to 0
-            nodeExit.select('circle')
-                .attr('r', 1e-6);
-
-            // On exit reduce the opacity of text labels
-            nodeExit.select('text')
-                .style('fill-opacity', 1e-6);
-
-            // ****************** links section ***************************
-
-            // Update the links...
-            const link = svg.selectAll('path.link')
-                .data(links, function(d) { return d.id; });
-
-            // Enter any new links at the parent's previous position.
-            const linkEnter = link.enter().insert('path', "g")
-                .attr("class", "link")
-                .attr('d', function(d){
-                    var o = {x: source.x0, y: source.y0}
-                    return diagonal(o, o)
-                });
-
-            // UPDATE
-            const linkUpdate = linkEnter.merge(link);
-
-            // Transition back to the parent element position
-            linkUpdate.transition()
-                .duration(duration)
-                .attr('d', function(d){ return diagonal(d, d.parent) });
-
-            // Remove any exiting links
-            const linkExit = link.exit().transition()
-                .duration(duration)
-                .attr('d', function(d) {
-                    var o = {x: source.x, y: source.y}
-                    return diagonal(o, o)
-                })
-                .remove();
-
-            // Store the old positions for transition.
-            nodes.forEach(function(d){
-                d.x0 = d.x;
-                d.y0 = d.y;
-            });
-
-        // Creates a curved (diagonal) path from parent to the child nodes
-        function diagonal(s, d) {
-            path = `M ${s.y} ${s.x}
+                // Creates a curved (diagonal) path from parent to the child nodes
+                function diagonal(s, d) {
+                    path = `M ${s.y} ${s.x}
                     C ${(s.y + d.y) / 2} ${s.x},
                     ${(s.y + d.y) / 2} ${d.x},
                     ${d.y} ${d.x}`
 
-            return path
-        }
+                    return path
+                }
 
-        // Toggle children on click.
-        function click(d) {
-            if (d.children) {
-                d._children = d.children;
-                d.children = null;
-            } else {
-                d.children = d._children;
-                d._children = null;
+                // Toggle children on click.
+                function click(d) {
+                    if (d.children) {
+                        d._children = d.children;
+                        d.children = null;
+                    } else {
+                        d.children = d._children;
+                        d._children = null;
+                    }
+                    update(d);
+                }
             }
-            update(d);
-        }
-        }
         
-        // Add data to sidebar
-        function clickHandler(d) {
-            if (panel.document.getElementById("compdata")) {
-                let removal = panel.document.getElementById("compdata");
-                panel.document.getElementById("componentInfo").removeChild(removal)
-            }
+            // Add data to sidebar
+            function clickHandler(d) {
+                if (panel.document.getElementById("compdata")) {
+                    let removal = panel.document.getElementById("compdata");
+                    panel.document.getElementById("componentInfo").removeChild(removal)
+                }
             
                 let divv = document.createElement("div");
                 divv.setAttribute('id', 'compdata');
@@ -506,13 +530,13 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     `;
                 panel.document.getElementById("componentInfo").appendChild(divv);
             
-            //populate variables on sidebar
+                //populate variables on sidebar
                 let variableList = panel.document.getElementById(d.data.name + "Variables");
                 if (d.data.variables === "undefined") {
-                        let variable = document.createElement("li");
-                        variable.setAttribute('id', d.data.name + 'VariableUndefined');
-                        variable.innerHTML = "undefined";
-                        variableList.appendChild(variable);
+                    let variable = document.createElement("li");
+                    variable.setAttribute('id', d.data.name + 'VariableUndefined');
+                    variable.innerHTML = "undefined";
+                    variableList.appendChild(variable);
                 }
                 else {
                     for (let i = 0; i < d.data.variables.length; i += 1) {
@@ -525,13 +549,13 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     }
                 };
             
-            //populate props on sidebar
+                //populate props on sidebar
                 let propList = panel.document.getElementById(d.data.name + "Props");
                 if (d.data.props === "undefined") {
-                        let prop = document.createElement("li");
-                        prop.setAttribute('id', d.data.name + 'PropUndefined');
-                        prop.innerHTML = "undefined";
-                        propList.appendChild(prop);
+                    let prop = document.createElement("li");
+                    prop.setAttribute('id', d.data.name + 'PropUndefined');
+                    prop.innerHTML = "undefined";
+                    propList.appendChild(prop);
                 }
                 else {
                     for (let i = 0; i < d.data.props.length; i += 1) {
@@ -546,4 +570,5 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 };
             }
         }
+    }
 });

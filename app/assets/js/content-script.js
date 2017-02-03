@@ -23,6 +23,6 @@ firstNodeCounter = function () {
 
 window.onload = firstNodeCounter()
 
-setInterval(nodeCounter, 400)
+setInterval(nodeCounter, 100)
 
 
