@@ -25,7 +25,8 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         slider.setAttribute('id', 'slider');
         slider.setAttribute('type', 'range');
         slider.setAttribute('step', '1');
-        slider.setAttribute('max', '1');
+        slider.setAttribute('max', '0');
+        slider.setAttribute('value', '0');
         slider.setAttribute('style', 'width: 600px');
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
 
@@ -197,11 +198,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 // console.log('returned data', data)
                 newData.push(data)
                 console.log('new data after push', newData)
+                let slider = _panelWindow.document.getElementById("slider");
+
                 chrome.storage.local.set({ 'states': newData });
-                let rangeData;
+
                 chrome.storage.local.get('states', function (result) {
                     console.log('get data', result.states)
-                    rangeData = result.states
                     drawTree(result.states, _panelWindow)
                 })
 
@@ -215,7 +217,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         inputEvtHasNeverFired = false;
                         rangeValue.current = evt.target.value;
                         if (rangeValue.current !== rangeValue.mostRecent) {
-                            
+                            console.log('current does not equal most recent')
                             listener(rangeValue.current);
                         }
                         rangeValue.mostRecent = rangeValue.current;
@@ -232,15 +234,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 const timeTravel = function(index) {
                     chrome.storage.local.get('states', function (result) {
                         console.log('get data', result.states)
-                        rangeData = result.states
                         drawTree(result.states, _panelWindow, index)
                     })
                 }
-                
-                let maxLength = newData.length - 1;
-                let slider = _panelWindow.document.getElementById("slider");
-                slider.setAttribute('max', maxLength);
-                slider.setAttribute('value', maxLength);
 
                 onRangeChange(slider, timeTravel);
 
@@ -251,20 +247,24 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
     updater()        
     });
 
-    let dataCompare = -Infinity;
+    let dataCompare = -1;
     
     const drawTree = (data, panel, dataIndex = data.length - 1) => {
-            console.log('dataCompare', dataCompare, 'data', dataIndex)
+        console.log('tree should rerender if nums diff: ', dataCompare, 'data', dataIndex)
+        let maxLength = data.length - 1;
+        let slider = panel.document.getElementById("slider");
+        slider.setAttribute('max', maxLength);
+        slider.value = dataIndex;
 
-        if (dataCompare !== dataIndex) {
-            console.log('dataCompare2', dataCompare, 'data2', dataIndex)
+        if (dataCompare === dataIndex) return;
+        else if (dataCompare !== dataIndex) {
+
             dataCompare = dataIndex;
         
-            console.log('tree rendering', data, dataIndex)
+            console.log('tree rendering this', data)
             d3 = panel.d3
             //append component data to sidebar
             data = data[dataIndex];
-            console.log('data before dataMap', data)
             // d3 tree creation   
             // create a name: node map
             var dataMap = data.reduce(function (map, node) {
@@ -292,15 +292,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     treeData.push(node);
                 }
             });
-            console.log('treeData array', treeData)
             treeData = Object.assign({}, treeData)[0];
-            console.log('treeData object', treeData)
 
             // console.log(treeData)
             var margin = { top: 20, right: 90, bottom: 30, left: 90 },
-                width = 660 - margin.left - margin.right,
-
-                height = 500 - margin.top - margin.bottom;
+                width = 500,
+                height = 500;
 
             // append the svg object to the body of the page
             // appends a 'group' element to 'svg'
@@ -314,7 +311,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 + margin.left + "," + margin.top + ")");
 
             let i = 0,
-                duration = 500,
+                duration = 0,
                 root;
 
             // declares a tree layout and assigns the size
@@ -379,17 +376,16 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     .on('click', click)
                     .on("mouseover", function (d) {
                         chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
-                    highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
-                    highlight.setAttribute('id', '${d.data.name}');
-                    highlight.setAttribute('class', 'highlighter');
-                    document.body.appendChild(highlight)`);
-                        console.log('moused over');
+                        highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
+                        highlight.setAttribute('id', '${d.data.name}');
+                        highlight.setAttribute('class', 'highlighter');
+                        document.body.appendChild(highlight)
+                        `);
                     }).on("mouseout", function (d) {
                         chrome.devtools.inspectedWindow.eval(`
-                    removal = document.getElementById('${d.data.name}')
-                    removal.parentNode.removeChild(removal);
-                `);
-                        console.log('moused out')
+                            removal = document.getElementById('${d.data.name}')
+                            removal.parentNode.removeChild(removal);
+                        `);
                     });
 
                 // Add labels for the nodes
