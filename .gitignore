@@ -1,6 +1,5 @@
 node_modules
 debug.log
 npm-debug.log
-dist
-build.js
-build.js.map
+/dist/*
+debug.log
