@@ -309,6 +309,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 .attr('id', 'treeVisualization')
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
+                .call(d3.zoom().on("zoom", function () {
+                    svg.attr("transform", d3.event.transform)
+                }))
                 .append("g")
                 .attr("transform", "translate("
                 + margin.left + "," + margin.top + ")");
@@ -390,7 +393,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             removal.parentNode.removeChild(removal);
                         `);
                     });
-
                 // Add labels for the nodes
                 nodeEnter.append('text')
                     .attr("dy", ".35em")
