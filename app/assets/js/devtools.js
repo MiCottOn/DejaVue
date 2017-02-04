@@ -374,12 +374,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     .attr('class', 'node')
                     .attr('r', 1e-6)
                     .style("fill", function (d) {
-                        return d._children ? "lightsteelblue" : "#fff";
+                        return d._children ? "#42b983" : "#fff";
                     })
                     .on('click', click)
                     .on("mouseover", function (d) {
                         chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
-                        highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
+                        highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(66, 185, 131, .3); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
                         highlight.setAttribute('id', '${d.data.name}');
                         highlight.setAttribute('class', 'highlighter');
                         document.body.appendChild(highlight)
@@ -417,9 +417,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
                 // Update the node attributes and style
                 nodeUpdate.select('circle.node')
-                    .attr('r', 10)
+                    .attr('r', 8)
                     .style("fill", function (d) {
-                        return d._children ? "lightsteelblue" : "#fff";
+                        return d._children ? "#42b983" : "#fff";
                     })
 
                     .attr('cursor', 'pointer');

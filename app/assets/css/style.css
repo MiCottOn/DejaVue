@@ -99,11 +99,14 @@ svg path.link:first-of-type, svg g.node:first-of-type {
 .node circle {
   fill: #fff;
   stroke: #42b983;
-  stroke-width: 3px;
+  stroke-width: 2px;
 }
 
 .node text {
-  font: 12px sans-serif;
+  font: 11px sans-serif;
+  text-decoration: underline;
+  cursor: pointer;
+  background: white;
 }
 
 .link {
