@@ -13,7 +13,9 @@
     </header>    
 
     <section id="contentContainer"> 
-      <router-view keep-alive></router-view>
+      <keep-alive>
+          <router-view></router-view>
+      </keep-alive>
     </section>
   </div>
 </template>
