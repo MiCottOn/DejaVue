@@ -2,7 +2,7 @@
   <div id="app">
     <header id="headerContainer">
       <div id="headerLeft">
-        <h1><router-link to="/">DejaVue</router-link></h1>
+        <h2><router-link to="/">DejaVue</router-link></h2>
       </div>
       <div id="headerRight">
         <ul>
@@ -13,12 +13,14 @@
     </header>    
 
     <section id="contentContainer"> 
-      <router-view keep-alive></router-view>
+      <keep-alive>
+          <router-view></router-view>
+      </keep-alive>
     </section>
   </div>
 </template>
 
-<script>
+<script>  
 import Home from './home.vue';
 import Tree from './tree.vue';
 import Render from './render.vue';
