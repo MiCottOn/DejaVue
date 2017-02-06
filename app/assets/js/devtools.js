@@ -371,6 +371,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 .attr('id', 'treeVisualization')
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
+                .call(d3.zoom().on("zoom", function () {
+                    svg.attr("transform", d3.event.transform)
+                }))
                 .append("g")
                 .attr("transform", "translate(" +
                     margin.left + "," + margin.top + ")");
@@ -442,7 +445,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     .attr('class', 'node')
                     .attr('r', 1e-6)
                     .style("fill", function (d) {
-                        return d._children ? "lightsteelblue" : "#fff";
+                        return d._children ? "#42b983" : "#fff";
                     })
                     .on('click', click)
                     .on("mouseover", function (d) {
@@ -452,13 +455,13 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             highlight.setAttribute('class', 'highlighter');
                             document.body.appendChild(highlight)
                             `);
+
                     }).on("mouseout", function (d) {
                         chrome.devtools.inspectedWindow.eval(`
                                 removal = document.getElementById('${d.data.name}')
                                 removal.parentNode.removeChild(removal);
                             `);
                     });
-
                 // Add labels for the nodes
                 nodeEnter.append('text')
                     .attr("dy", ".35em")
@@ -487,9 +490,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
                 // Update the node attributes and style
                 nodeUpdate.select('circle.node')
-                    .attr('r', 10)
+                    .attr('r', 8)
                     .style("fill", function (d) {
-                        return d._children ? "lightsteelblue" : "#fff";
+                        return d._children ? "#42b983" : "#fff";
                     })
 
                     .attr('cursor', 'pointer');
