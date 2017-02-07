@@ -15,7 +15,7 @@ Make sure you are using Node 6+ and NPM 3+
 <p>3. <code>npm run build</code></p>
 <p>4. Open Chrome extension page</p>
 <p>5. Check "developer mode"</p>
-<p>6. Click "load unpacked extension", and choose shells/chrome.</p>
+<p>6. Click "load unpacked extension", and choose the root folder.</p>
 
 
 ### Want to help contribute? Fork the repo and have at it!
