@@ -10,6 +10,7 @@
 // for 10 seconds.
 
 chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', function (extensionPanel) {
+
     //if true stops recording state to prevent repeats
     chrome.storage.sync.set({
         'traveledThroughTime': false
@@ -89,6 +90,8 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 var newHTML = result.states[index][1].html;
                 var stringHTML = JSON.stringify(newHTML);
                 var evaluation = 'inspect($$("body"))[0].innerHTML = ' + stringHTML + ';';
+                let frame = _panelWindow.getElementById('timelineFrame');
+                frame.innerHTML = '<b>Test</b>';
                 chrome.devtools.inspectedWindow.eval(evaluation, function () {
                     return
                 })
@@ -107,7 +110,8 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 if (count !== oldCount) {
                     oldCount = count;
                     chrome.devtools.inspectedWindow.eval(
-                        `domNodes = inspect($$('body'));
+                        `                        
+                        domNodes = inspect($$('body'));
                     
                     // main function to grab and plot data on visualization
                         function createDV() {

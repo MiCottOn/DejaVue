@@ -3,7 +3,7 @@ import VueRouter from 'vue-router'
 import App from './app.vue'
 import Home from './home.vue'
 import Tree from './tree.vue'
-import Render from './render.vue'
+import Timeline from './timeline.vue'
 import Testing from './testing.vue'
 
 Vue.use(VueRouter)
@@ -15,7 +15,7 @@ const router = new VueRouter({
     { path: '/index.html', components: { default: Tree } },
     { path: '/', component: Tree },
     {path: '/tree', component: Tree},
-    {path: '/render', component: Render},
+    {path: '/timeline', component: Timeline},
     {path: '/testing', component: Testing},
   ]
 })
