@@ -1,8 +1,6 @@
 # DejaVue 
-[![Build Status](https://travis-ci.org/taye/interact.js.svg?branch=master)]()
-
 <a href="http://imgur.com/SkifFa4"><img src="http://i.imgur.com/SkifFa4.png" title="source: imgur.com" /></a>
-
+[![Build Status](https://travis-ci.org/taye/interact.js.svg?branch=master)]()
 
 
 
