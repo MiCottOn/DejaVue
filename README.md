@@ -1,10 +1,9 @@
-# DejaVue
+# DejaVue 
+[![Build Status](https://travis-ci.org/taye/interact.js.svg?branch=master)]()
 
 <a href="http://imgur.com/SkifFa4"><img src="http://i.imgur.com/SkifFa4.png" title="source: imgur.com" /></a>
 
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)]()
-[![Build Status](https://travis-ci.org/taye/interact.js.svg?branch=master)]()
 
 
 App is still being built and will be fully deployed in the chrome dev extension store by <b>February 18th</b>!!!! Stay tuned!!
@@ -29,6 +28,6 @@ Make sure you are using Node 6+ and NPM 3+
 
 
 Authors:
-<p>Scott Schwartz - https://github.com/sschwartz0</p>
-<p>Michael Richards - https://github.com/madebymtr</p>
-<p>Jon Kim - https://github.com/kimhjona</p>
+<a href="https://github.com/sschwartz0">Scott</a>,
+<a href="https://github.com/madebymtr">Mike</a>, and 
+<a href="https://github.com/kimhjona">Jon</a>
