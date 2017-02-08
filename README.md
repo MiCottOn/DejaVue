@@ -4,25 +4,23 @@
 
 
 
-App is still being built and will be fully deployed in the chrome dev extension store by <b>February 18th</b>!!!! Stay tuned!!
+Chrome developer extension tool will be available at the latest by <b>February 11th</b>!!!! Stay tuned!!
 
 ## Manual Installation 
+
+# Only to be used when you are running a Vue app in development mode!!! Will not work otherwise.
 
 Make sure you are using Node 6+ and NPM 3+
 
 <p>1. Clone this repo</p>
-<p>2. <code>npm install </code></p>
-<p>3. <code>npm run build</code></p>
-<p>4. Open Chrome extension page</p>
-<p>5. Check "developer mode"</p>
-<p>6. Click "load unpacked extension", and choose the root folder.</p>
-
+<p>2. <code>npm run build</code></p>
+<p>3. Open Chrome extension page</p>
+<p>4. Check "developer mode"</p>
+<p>5. Click "load unpacked extension", and choose the root folder.</p>
 
 ### Want to help contribute? Fork the repo and have at it!
 
-
 <a href="https://medium.com/@jonajumba/why-were-building-dejavue-js-80e037bf15e3#.tygt4by9o">Why and how we decided to build this</a>
-
 
 
 Authors:
