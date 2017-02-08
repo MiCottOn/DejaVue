@@ -1,5 +1,9 @@
 node_modules
 debug.log
 npm-debug.log
-/dist/*
+dist
 debug.log
+.vscode
+unneeded
+DevTool
+DevTool.pem
