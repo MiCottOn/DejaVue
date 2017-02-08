@@ -10,7 +10,7 @@ Make sure you are using Node 6+ and NPM 3+
 <p>2. <code>npm run build</code></p>
 <p>3. Open Chrome extension page</p>
 <p>4. Check "developer mode"</p>
-<p>5. Click "load unpacked extension", and choose the root folder.</p>
+<p>5. Click "load unpacked extension", and choose the entire folder.</p>
 
 ## Building over it
 <p>1. Clone this repo</p>
