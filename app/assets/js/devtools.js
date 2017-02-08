@@ -45,7 +45,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
         let refresh = document.createElement("div");
         refresh.innerHTML = '<h3>Click to resume time travel</h3>'
-
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
         _panelWindow.document.getElementById('treeContainer').appendChild(refresh)
 
@@ -817,7 +816,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         }
 
                         //create HTMl consisting of changes
-                        let htmlString = '<ul>';
+                        let htmlString = '<ul class="opened">';
                         if (changeArray.length === 0) {
                             htmlString = `${htmlString} <li>No state changes occurred on this component</li>`
                         } else {
