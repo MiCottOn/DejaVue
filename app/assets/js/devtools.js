@@ -42,9 +42,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         slider.setAttribute('max', '0');
         slider.setAttribute('value', '0');
         slider.setAttribute('style', 'width: 400px');
-
+        const reload = function () {
+            chrome.devtools.inspectedWindow.reload()
+        }
         let refresh = document.createElement("div");
-        refresh.innerHTML = '<h3>Click to resume time travel</h3>'
+
+        refresh.innerHTML = '<a onclick="reload()"><h3 id="restartTimeline">Click to restart your application</h3></a>'
+        
+
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
         _panelWindow.document.getElementById('treeContainer').appendChild(refresh)
 
@@ -544,7 +549,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     if (d.color) {
                         return d.color; //if the value is set
                     } else {
-                        return "rgba(211, 211, 211, .2)"
+                        return "rgba(211, 211, 211, .6)"
                     }
                 })
                 
@@ -553,7 +558,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     if (d.color) {
                         return "1"; //if the value is set
                     } else {
-                        return ".3"
+                        return ".8"
                     }
                 })     
                 
@@ -562,7 +567,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     if (d.color) {
                         return "1"; //if the value is set
                     } else {
-                        return ".3"
+                        return ".8"
                     }
                 })
 
