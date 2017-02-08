@@ -46,8 +46,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             chrome.devtools.inspectedWindow.reload()
         }
         let refresh = document.createElement("div");
+
         refresh.innerHTML = '<a onclick="reload()"><h3 id="restartTimeline">Click to restart your application</h3></a>'
         
+
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
         _panelWindow.document.getElementById('treeContainer').appendChild(refresh)
 
@@ -819,7 +821,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         }
 
                         //create HTMl consisting of changes
-                        let htmlString = '<ul>';
+                        let htmlString = '<ul class="opened">';
                         if (changeArray.length === 0) {
                             htmlString = `${htmlString} <li>No state changes occurred on this component</li>`
                         } else {
