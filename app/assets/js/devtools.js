@@ -481,7 +481,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         return d._children ? "#42b983" : "#fff";
                     })
                     .style('stroke', function (d) {
-                        if (d.data.changes) return 'black';
+                        if (d.data.changes) return 'rgba(44, 62, 80, .90)';
                     })
                     .style('stroke-width', function (d) {
                         if (d.data.changes) return '5';
@@ -699,10 +699,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     flatten(root).forEach(function (d) {
                         d.color = undefined;
                     })
-                    //iterate over the selected node and set color as red.
+                    //iterate over the selected node and set color as green.
                     //till it reaches it reaches the root
                     while (find.parent) {
-                        find.color = "rgba(224, 24, 24, .7)";
+                        find.color = "#42b983";
                         find = find.parent;
                     }
                     update(find);
