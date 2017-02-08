@@ -115,6 +115,14 @@ svg path.link:first-of-type, svg g.node:first-of-type {
   stroke-width: 2px;
 }
 
+.notFocused {
+  opacity: .4;
+}
+
+.focused {
+  opacity: 1;
+}
+
 div.tooltip {	
     position: absolute;			
     text-align: center;			

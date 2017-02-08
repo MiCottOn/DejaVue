@@ -515,6 +515,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     })
                     .on("click", function (d) {
                         clickHandler(d);
+                        console.log(d.path())
+                        let pathToRoot = d.links();
+                        pathToRoot.forEach((el) => el.attr('opacity', '.4'))
                     })
                     .on("mouseover", function (d) {
 
@@ -536,6 +539,33 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     .text(function (d) {
                         return d.data.name.slice(0, d.data.name.lastIndexOf("-"))
                     });
+
+                //coloring of paths based on what node is clicked
+                d3.selectAll("path").style("stroke", function (d) {
+                    if (d.color) {
+                        return d.color; //if the value is set
+                    } else {
+                        return "rgba(211, 211, 211, .2)"
+                    }
+                })
+                
+                //coloring of circles based on what node is clicked
+                d3.selectAll("circle").style("opacity", function (d) {
+                    if (d.color) {
+                        return "1"; //if the value is set
+                    } else {
+                        return ".3"
+                    }
+                })     
+                
+                //coloring of text based on what node is clicked
+                d3.selectAll("text").style("opacity", function (d) {
+                    if (d.color) {
+                        return "1"; //if the value is set
+                    } else {
+                        return ".3"
+                    }
+                })
 
                 // UPDATE
                 let nodeUpdate = nodeEnter.merge(node);
@@ -643,12 +673,49 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 }
 
                 function clickHandler(d) {
+
+                    //highlight path from node to root
+                    function flatten(root) {
+                        var nodes = [],
+                            i = 0;
+
+                        function recurse(node) {
+                            if (node.children) node.children.forEach(recurse);
+                            if (node._children) node._children.forEach(recurse);
+                            if (!node.id) node.id = ++i;
+                            nodes.push(node);
+                        }
+
+                        recurse(root);
+                        return nodes;
+                    }
+
+                    var select = d.data.name;
+                    //find selected data from flattened root record
+                    var find = flatten(root).find(function (d) {
+                        if (d.data.name == select)
+                            return true;
+                    });
+                    //reset all the data to have color undefined.
+                    flatten(root).forEach(function (d) {
+                        d.color = undefined;
+                    })
+                    //iterate over the selected node and set color as red.
+                    //till it reaches it reaches the root
+                    while (find.parent) {
+                        find.color = "rgba(224, 24, 24, .7)";
+                        find = find.parent;
+                    }
+                    update(find);
+
                     // if it's already open, remove it and create a new one
                     if (panel.document.getElementById('sidebar')) {
                         closeSidebar();
                     }
                     const sidebar = document.createElement('section');
                     sidebar.setAttribute('id', 'sidebar');
+
+                    console.log(d)
 
                     // populate the section with our headings
                     const contentdiv = document.createElement('div');
@@ -751,9 +818,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             ${htmlString}
                         `;
                         panel.document.getElementById('app_content').appendChild(changesDiv);
-
-
-
 
                     }
 
