@@ -1,8 +1,10 @@
 //CAPTURE EVENTS ON PAGES - START OF SCRIPT/ALG
 let actions = []
 $(document).ready(function () {
-    $('input').on('click', function (e) {
-        actions.push(e);
+    $('a').on('click', function (e) {
+        actions.push({
+            'Click': [e, $(this)]
+        });
         console.log(actions)
 
         chrome.storage.local.set({

@@ -90,8 +90,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 var newHTML = result.states[index][1].html;
                 var stringHTML = JSON.stringify(newHTML);
                 var evaluation = 'inspect($$("body"))[0].innerHTML = ' + stringHTML + ';';
-                let frame = _panelWindow.getElementById('timelineFrame');
-                frame.innerHTML = '<b>Test</b>';
                 chrome.devtools.inspectedWindow.eval(evaluation, function () {
                     return
                 })
@@ -271,11 +269,11 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             chrome.storage.local.set({
                                 'states': newData
                             });
-                            
+
                             chrome.storage.local.get('states', function (result) {
                                 drawTree(result.states, _panelWindow)
                             })
-                                
+
 
                         })
                 }
@@ -326,6 +324,32 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             dataCompare = dataIndex;
 
             console.log('tree rendering this', data)
+            if (data[dataIndex - 1]) {
+                function compareDiff(data) {
+                    let flag = true;
+                    let current = data[dataIndex];
+                    let compare = data[dataIndex - 1];
+
+                    for (let i = 0; i < current.length; i += 1) {
+
+                        for (let j = 0; j < compare.length; j += 1) {
+                            if (current[i].name === compare[j].name) {
+                                console.log('comparing', current[i], 'to', compare[j])
+                                flag = (JSON.stringify(current[i]) === JSON.stringify(compare[j])) ? true : false;
+                                if (!flag) {
+                                    let differences = DeepDiff(current[i], compare[j]);
+                                    current[i].changes = differences
+                                    console.log('differences', differences, 'current', current[i].changes)
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    return flag;
+                }
+
+                console.log(compareDiff(data))
+            }
             d3 = panel.d3
             //append component data to sidebar
             data = data[dataIndex];
@@ -445,14 +469,28 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 // Add Circle for the nodes
                 let highlight;
                 let removal;
+                let changeDiv = panel.document.createElement('div')
+                changeDiv.setAttribute('style', 'width:200px; height:200px; background-color: #FFF; color: #000')
+                changeDiv.innerHTML = function (d) {
+                    return JSON.stringify(d.data.changes)
+                }
+                console.log(changeDiv)
                 nodeEnter.append('circle')
                     .attr('class', 'node')
                     .attr('r', 1e-6)
                     .style("fill", function (d) {
                         return d._children ? "#42b983" : "#fff";
                     })
+                    .style('stroke', function (d) {
+                        if (d.data.changes) return 'black';
+                    })
+                    .style('stroke-width', function (d) {
+                        if (d.data.changes) return '5';
+                    })
                     .on('click', click)
                     .on("mouseover", function (d) {
+
+                        //highlight component on inspectedWindow on node hover
                         chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
                             highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
                             highlight.setAttribute('id', '${d.data.name}');
@@ -477,6 +515,23 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     })
                     .on("click", function (d) {
                         clickHandler(d);
+                    })
+                    .on("mouseover", function (d) {
+
+                        //highlight component on inspectedWindow on node hover
+                        chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
+                            highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
+                            highlight.setAttribute('id', '${d.data.name}');
+                            highlight.setAttribute('class', 'highlighter');
+                            document.body.appendChild(highlight)
+                            `);
+
+                    })
+                    .on("mouseout", function (d) {
+                        chrome.devtools.inspectedWindow.eval(`
+                                removal = document.getElementById('${d.data.name}')
+                                removal.parentNode.removeChild(removal);
+                            `);
                     })
                     .text(function (d) {
                         return d.data.name.slice(0, d.data.name.lastIndexOf("-"))
@@ -659,6 +714,49 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         const remove = panel.document.getElementById("sidebar");
                         panel.document.getElementById('contentContainer').removeChild(remove);
                     }
+
+                    //only run if there are changes to the component
+                    //create array of strings - e.g. 'CommentCount changed from 0 to 1'
+                    if (d.data.changes) {
+                        console.log(d.data.name, 'has changes');
+                        let changeArray = [];
+                        for (let i = 0; i < d.data.changes.length; i += 1) {
+                            let changes = d.data.changes[i];
+                            if (changes.path.includes("html") || changes.path.includes("width") || changes.path.includes("height") || changes.path.includes("top") || changes.path.includes("bottom") || changes.path.includes("left") || changes.path.includes("right")) {} else {
+                                let propIndex = JSON.stringify(changes.rhs).indexOf(":");
+                                let prop = JSON.stringify(changes.rhs).slice(1, propIndex);
+                                let oldVal = JSON.stringify(changes.rhs).slice(propIndex + 1, JSON.stringify(changes.rhs).length - 1);
+                                let newVal = JSON.stringify(changes.lhs).slice(propIndex + 1, JSON.stringify(changes.lhs).length - 1);
+                                let changeText = `${prop} changed from ${oldVal} to ${newVal}`;
+                                changeArray.push(changeText)
+                            }
+                        }
+
+                        //create HTMl consisting of changes
+                        let htmlString = '<ul>';
+                        if (changeArray.length === 0) {
+                            htmlString = `${htmlString} <li>No state changes occurred on this component</li>`
+                        } else {
+                            for (let i = 0; i < changeArray.length; i += 1) {
+                                htmlString = htmlString + '<li>' + changeArray[i] + '</li>'
+                            }
+                        }
+                        htmlString = htmlString + '</ul>'
+
+                        //append changes to page
+                        const changesDiv = document.createElement('div');
+                        changesDiv.setAttribute('id', 'change_content');
+                        changesDiv.innerHTML = `
+                            <h2>Changes</h2>
+                            ${htmlString}
+                        `;
+                        panel.document.getElementById('app_content').appendChild(changesDiv);
+
+
+
+
+                    }
+
                 }
             }
         }
