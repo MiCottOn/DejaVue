@@ -47,7 +47,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         }
         let refresh = document.createElement("div");
 
-        refresh.innerHTML = '<a onclick="reload()"><h3 id="restartTimeline">Click to restart your application</h3></a>'
+        refresh.innerHTML = "<h3 id="restartTimeline">Once you've traveled refresh your browser page to resume</h3>"
         
 
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
