@@ -41,7 +41,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         slider.setAttribute('step', '1');
         slider.setAttribute('max', '0');
         slider.setAttribute('value', '0');
-        slider.setAttribute('style', 'width: 600px');
+        slider.setAttribute('style', 'width: 400px');
 
         let refresh = document.createElement("div");
         refresh.innerHTML = '<h3>Click to resume time travel</h3>'
@@ -724,22 +724,33 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             <a href="#" id="close_sidebar"></a>
                             <h2>Component Inspector</h2>
                             <h3>${d.data.name.slice(0, d.data.name.lastIndexOf("-"))}</h3>
-                            <h4>Props</h4>
-                            <ul id="${d.data.name}Props">
+                            <h4><a href="#" id="prop_handler">Props</a><span></span></h4>
+                            <ul id="${d.data.name}Props" class="props-list">
 
                             </ul>
-                            <h4>Vars</h4>
-                            <ul id="${d.data.name}Variables">
+                            <h4><a href="#" id="vars_handler">Vars</a><span></span></h4>
+                            <ul id="${d.data.name}Variables" class="vars-list">
 
                             </ul>
-                            <h4>Slot</h4>
-                            <ul>
+                            <h4><a href="#" id="slot_handler">Slot</a><span></span></h4>
+                            <ul id="slot-list" class="slot-list opened">
                                 <li><p>${(d.data.slots) ? d.data.slots : "No slot/data"}</p></li>
                             </ul>
                         `;
                     panel.document.getElementById('contentContainer').appendChild(sidebar);
                     panel.document.getElementById('sidebar').appendChild(contentdiv);
-
+                    panel.document.getElementById('prop_handler').addEventListener('click', propToggle);
+                    panel.document.getElementById('vars_handler').addEventListener('click', varToggle);
+                    // click handlers for sidebar sections
+                    function propToggle(e) {
+                        e.preventDefault();
+                       var element = panel.document.querySelector('.props-list').classList.toggle('opened');
+                       console.log(element)
+                    }
+                    function varToggle(e) {
+                        e.preventDefault();
+                        panel.document.querySelector('.vars-list').classList.toggle('opened');
+                    }
                     // add an event listener
                     panel.document.getElementById('close_sidebar').addEventListener('click', closeSidebar)
 
@@ -759,6 +770,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                                 variableList.appendChild(variable);
                             }
                         }
+                        const varLength = document.createElement('span');
+                        varLength.innerHTML = ` (${d.data.variables.length})` ;
+                        panel.document.getElementById('vars_handler').appendChild(varLength);
                     };
 
                     //populate props on sidebar
@@ -775,6 +789,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             prop.innerHTML = d.data.props[i];
                             propList.appendChild(prop);
                         }
+                        const propLength = document.createElement('span');
+                        propLength.innerHTML = ` (${d.data.props.length})` ;
+                        panel.document.getElementById('prop_handler').appendChild(propLength);
                     };
 
                     function closeSidebar() {
@@ -814,7 +831,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         const changesDiv = document.createElement('div');
                         changesDiv.setAttribute('id', 'change_content');
                         changesDiv.innerHTML = `
-                            <h2>Changes</h2>
+                            <h4><a href="#" class="changed">Changes</a></h4>
                             ${htmlString}
                         `;
                         panel.document.getElementById('app_content').appendChild(changesDiv);

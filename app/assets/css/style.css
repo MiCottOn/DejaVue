@@ -29,9 +29,8 @@ a {
   flex-direction: row;
   width: 100%;
   height: 40px;
-  border-bottom: 1px solid #ddd;
-  box-shadow: 0px 0px 6px #ccc;
   background: #42b983;
+  box-shadow: 0px 0px 10px 0 #237550;
   margin: 0;
   position: fixed;
   top: 0;
@@ -81,7 +80,7 @@ h2 a {
   color: #FFF;
 }
 .active {
-  border-bottom: 4px solid #FFF;
+  border-bottom: 4px solid #237550;
 }
 
 #headerRight li.active a {
@@ -115,14 +114,6 @@ svg path.link:first-of-type, svg g.node:first-of-type {
   stroke-width: 2px;
 }
 
-.notFocused {
-  opacity: .4;
-}
-
-.focused {
-  opacity: 1;
-}
-
 div.tooltip {	
     position: absolute;			
     text-align: center;			
@@ -140,7 +131,7 @@ div.tooltip {
 ============================================================== */
 #sidebar {
   position: absolute;
-  height: auto;
+  height: 100vh;
   top: 40px;
   right: 0;
   width: 200px;
@@ -153,20 +144,56 @@ div.tooltip {
   padding: 5px;
   color: white;
 }
+.changed {
+  background: #42b983;
+}
+#sidebar ul {
+  height: 0;
+  overflow: hidden;
+  transition: all .3s ease;
+}
+
+#sidebar h3 {
+  font-size: 21px;
+  margin-bottom:12px;
+}
+
+#sidebar h4 {
+  margin-bottom: 5px;
+}
+
+#sidebar h4 a {
+  display: block;
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  cursor: pointer;
+  color: white;
+  text-align: left;
+  background: #1b2b3a;
+}
+.opened {
+  height: auto!important;
+  overflow: visible!important;
+}
 #sidebar li {
   display: block;
-  padding: 8px 10px;
+  padding: 8px;
+  margin: 0;
+  text-align: left;
 }
 
 #sidebar h2 {
   padding: 15px 10px;
-  background: #42b983;
+  background: #1b2b3a;
   color: white;
   font-size: 16px;
   margin-bottom: 15px;
   font-weight: bold;
   text-align: left;
 }
+
 #close_sidebar {
   display: block;
   color: white;
