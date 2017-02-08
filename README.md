@@ -8,7 +8,7 @@ Chrome developer extension tool will be available at the latest by <b>February 1
 
 ## Manual Installation 
 
-# Only to be used when you are running a Vue app in development mode!!! Will not work otherwise.
+<h3>Only to be used when you are running a Vue app in development mode!!! Will not work otherwise</h3>
 
 Make sure you are using Node 6+ and NPM 3+
 
