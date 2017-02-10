@@ -22,7 +22,7 @@ Make sure you are using Node 6+ and NPM 3+
 ## Features - all work with and without a state management library (e.g. Vuex)
 <p>1. Application Structure Visualization - Interactive tree </p>
 <p>2. Component Inspection - view props, variables and slots</p>
-<p>3. Diff Engine - As you test see which components are being updated and what those changse are</p>
+<p>3. Diff Engine - As you test see which components are being updated and what those changes are</p>
 <p>4. Time Travel - Move backwards and forwards through your state changes and see both the tree and your application update</p>
 <p>5. Component Highlighting - Hover over a tree leaf to highlight the component on your app</p>
 
