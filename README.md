@@ -1,5 +1,7 @@
 # DejaVue - Vue.js visualization and stress testing 
 
+<h4>(Only works with Vue 2.0!)</h4>
+
 ## Installation
 <h3><a href="https://chrome.google.com/webstore/detail/dejavue/jpigngmphmclcmikmcbcfplgnhlnefbp?hl=en">Click here to download the extension!</a></h3>
 
