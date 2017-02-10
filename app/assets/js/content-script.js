@@ -31,7 +31,7 @@ nodeCounter = function () {
     //FIX FOR TIME TRAVEL - MAKE SOME SORT OF CHECK SO NEW STATE ISN'T ADDED
     chrome.storage.sync.get('traveledThroughTime', function (result) {
         if (!result.traveledThroughTime) {
-            count = document.querySelectorAll('*').length - document.querySelectorAll('div.highlighter').length;
+            count = document.querySelectorAll('*').length - document.querySelectorAll('div.highlighter').length - document.querySelectorAll('div.timeTravel').length;
             chrome.storage.sync.get('count', function () {
                 check = count;
             });
