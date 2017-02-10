@@ -1,4 +1,4 @@
-// Start of stress testing. commenting out for now
+//Stress testing start
 // let actions = []
 // $(document).ready(function () {
 //     $('a').on('click', function (e) {
@@ -21,40 +21,40 @@
 //     })
 // });
 
+let count;
+let oldCount;
+let check;
 
+//inspect page for node count changes and if change then capture state on devtools.js
 
-        let count;
-        let oldCount;
-        let check;
-
-        nodeCounter = function () {
-            //FIX FOR TIME TRAVEL - MAKE SOME SORT OF CHECK SO NEW STATE ISN'T ADDED
-            chrome.storage.sync.get('traveledThroughTime', function (result) {
-                if (!result.traveledThroughTime) {
-                    count = document.querySelectorAll('*').length - document.querySelectorAll('div.highlighter').length;
-                    chrome.storage.sync.get('count', function () {
-                        check = count;
-                    });
-                    if (count !== check) {
-                        chrome.storage.sync.set({
-                            'count': count
-                        }, function () {
-                            return
-                        });
-                    }
-                }
-            })
-        }
-
-        firstNodeCounter = function () {
-            oldCount = document.querySelectorAll('*').length;
-            chrome.storage.sync.set({
-                'oldCount': count
-            }, function () {
-                return
+nodeCounter = function () {
+    //FIX FOR TIME TRAVEL - MAKE SOME SORT OF CHECK SO NEW STATE ISN'T ADDED
+    chrome.storage.sync.get('traveledThroughTime', function (result) {
+        if (!result.traveledThroughTime) {
+            count = document.querySelectorAll('*').length - document.querySelectorAll('div.highlighter').length;
+            chrome.storage.sync.get('count', function () {
+                check = count;
             });
+            if (count !== check) {
+                chrome.storage.sync.set({
+                    'count': count
+                }, function () {
+                    return
+                });
+            }
         }
+    })
+}
 
-        window.onload = firstNodeCounter();
+firstNodeCounter = function () {
+    oldCount = document.querySelectorAll('*').length;
+    chrome.storage.sync.set({
+        'oldCount': count
+    }, function () {
+        return
+    });
+}
 
-        setInterval(nodeCounter, 100)
+window.onload = firstNodeCounter();
+
+setInterval(nodeCounter, 100)

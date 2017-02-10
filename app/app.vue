@@ -6,7 +6,7 @@
       </div>
       <div id="headerRight">
         <ul>
-          <li v-bind:class="{active: a}" @click="toggleActive"><router-link to="/tree">Application Visualization</router-link></li>
+          <li v-bind:class="{active: a}"><router-link to="/tree">Application Visualization</router-link></li>
           <!--<li v-bind:class="{active: c}" @click="toggleActive"><router-link to="/timeline">Time Traveler</router-link></li>-->
           <!--<li v-bind:class="{active: b}" @click="toggleActive"><router-link to="/render">Stress Testing</router-link></li>-->
         </ul>
@@ -18,6 +18,7 @@
           <router-view></router-view>
       </keep-alive>
     </section>
+    <p><a href="https://github.com/MiCottOn/DejaVue/issues" target="_blank">Submit an issue on Github</a></p>
   </div>
 </template>
 

@@ -9,7 +9,10 @@
 // Vue presence on the page. If yes, create the Vue panel; otherwise poll
 // for 10 seconds.
 
+
 chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', function (extensionPanel) {
+    //  let appNode = panelWindow.document.querySelectorAll('.widget .vbox .panel')[0]
+    const themeColor = chrome.devtools.panels.themeName;
 
     //if true stops recording state to prevent repeats
     chrome.storage.sync.set({
@@ -35,6 +38,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
     });
 
     show.then(function (_panelWindow) {
+        const appNode = _panelWindow.document.getElementById('app')
+            if (themeColor === 'default') {
+                appNode.classList.add('defaultTheme')
+            }
+            else {
+                appNode.classList.add('darkTheme')
+        }
+        
         let slider = document.createElement("input");
         slider.setAttribute('id', 'slider');
         slider.setAttribute('type', 'range');
@@ -42,13 +53,11 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         slider.setAttribute('max', '0');
         slider.setAttribute('value', '0');
         slider.setAttribute('style', 'width: 400px');
-        const reload = function () {
-            chrome.devtools.inspectedWindow.reload()
-        }
+
         let refresh = document.createElement("div");
 
-        refresh.innerHTML = '<a onclick="reload()"><h3 id="restartTimeline">Click to restart your application</h3></a>'
-        
+        refresh.innerHTML = "<h4 style='color: #999'>Once you've traveled refresh your tab and close/open Dev Tools to resume tree updates</h4>"
+
 
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
         _panelWindow.document.getElementById('treeContainer').appendChild(refresh)
@@ -394,14 +403,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     left: 90
                 },
                 width = 500,
-                height = 500;
+                height = 600;
 
             // append the svg object to the body of the page
             // appends a 'group' element to 'svg'
             // moves the 'group' element to the top left margin
             const svg = d3.select("#treeContainer").append("svg")
                 .attr('id', 'treeVisualization')
-                .attr("width", width + margin.right + margin.left)
+                .attr("width", "100%")
                 .attr("height", height + margin.top + margin.bottom)
                 .call(d3.zoom().on("zoom", function () {
                     svg.attr("transform", d3.event.transform)
@@ -516,6 +525,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     })
                     .attr("text-anchor", function (d) {
                         return d.children || d._children ? "end" : "start";
+                    })
+                    .style('fill', function (d) {
+                        if (themeColor === 'default') {return 'black'}
+                        else {return 'white'}
                     })
                     .on("click", function (d) {
                         clickHandler(d);
