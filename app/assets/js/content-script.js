@@ -1,25 +1,25 @@
-//CAPTURE EVENTS ON PAGES - START OF SCRIPT/ALG
-let actions = []
-$(document).ready(function () {
-    $('a').on('click', function (e) {
-        actions.push({
-            'Click': [e, $(this)]
-        });
-        console.log(actions)
+// Start of stress testing. commenting out for now
+// let actions = []
+// $(document).ready(function () {
+//     $('a').on('click', function (e) {
+//         actions.push({
+//             'Click': [e, $(this)]
+//         });
+//         console.log(actions)
 
-        chrome.storage.local.set({
-            'macros': actions
-        }, function () {
-            return
-        });
+//         chrome.storage.local.set({
+//             'macros': actions
+//         }, function () {
+//             return
+//         });
 
-        chrome.storage.local.get('macros', function (result) {
-            if (result.macros) {
-                console.log('macros', result.macros);
-            }
-        });
-    })
-});
+//         chrome.storage.local.get('macros', function (result) {
+//             if (result.macros) {
+//                 console.log('macros', result.macros);
+//             }
+//         });
+//     })
+// });
 
 
 
