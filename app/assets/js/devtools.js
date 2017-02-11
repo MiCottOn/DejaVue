@@ -22,13 +22,24 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
     chrome.storage.local.set({
         'states': '[]'
     });
-
+    let testHTML = 1;
     let newData = [];
     let sidebarAdded = 0;
     let count;
     let oldCount;
     chrome.storage.sync.get('oldCount', function (data) {
         oldCount = data.oldCount
+    });
+
+    chrome.devtools.inspectedWindow.eval(`
+        let addDVChecker = inspect($$('body'))[0];
+        addDVChecker.classList.add('DejaVue');
+        let timeTravel = document.createElement("div"); 
+        timeTravel.classList.add("timeTravel"); 
+        timeTravel.setAttribute("style", "width:90%; height: 90vh; position: absolute; top: 0; left: 0; z-index: 99; display: none"); 
+        addDVChecker.append(timeTravel);
+        `, function () {
+        return
     })
 
     var show = new Promise(function (resolve, reject) {
@@ -39,13 +50,29 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
     show.then(function (_panelWindow) {
         const appNode = _panelWindow.document.getElementById('app')
-            if (themeColor === 'default') {
-                appNode.classList.add('defaultTheme')
-            }
-            else {
-                appNode.classList.add('darkTheme')
+        if (themeColor === 'default') {
+            appNode.classList.add('defaultTheme')
+        } else {
+            appNode.classList.add('darkTheme')
         }
-        
+        const stopTimeTravel = function () {
+            let evaluation2 = 'inspect($$(".timeTravel"))[0].setAttribute("style", "width:100%; height: 100vh; background-color: #FFF; position: absolute; top: 0; left: 0; z-index: 99; display: none")'
+            chrome.devtools.inspectedWindow.eval(evaluation2, function () {
+                return
+            })
+            chrome.storage.sync.set({
+                'traveledThroughTime': false
+            }, function () {
+                return
+            });
+        }
+
+        let timeTravelButton = document.createElement("button");
+        timeTravelButton.setAttribute("id", "timeTravelButton")
+        timeTravelButton.innerHTML = 'Return to most recent state';
+
+
+
         let slider = document.createElement("input");
         slider.setAttribute('id', 'slider');
         slider.setAttribute('type', 'range');
@@ -58,9 +85,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
         refresh.innerHTML = "<h4 style='color: #999'>Once you've traveled refresh your tab and close/open Dev Tools to resume tree updates</h4>"
 
-
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
-        _panelWindow.document.getElementById('treeContainer').appendChild(refresh)
+        _panelWindow.document.getElementById('treeContainer').appendChild(timeTravelButton)
+
+        _panelWindow.document.addEventListener('DOMContentLoaded', function() {
+            var link = _panelWindow.document.getElementById('timeTravelButton');
+            // onClick's logic below:
+            link.addEventListener('click', startTimeTravel);
+        });
 
         function onRangeChange(rangeInputElmt, listener) {
 
@@ -89,6 +121,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
         }
 
+        function onButtonClick(rangeInputElmt, listener) {
+            rangeInputElmt.addEventListener("click", function (evt) {
+                    listener(evt.target.value);
+            });
+        }
+
         let newHTML;
 
         const timeTravel = function (index) {
@@ -102,8 +140,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 drawTree(result.states, _panelWindow, index)
                 var newHTML = result.states[index][1].html;
                 var stringHTML = JSON.stringify(newHTML);
-                var evaluation = 'inspect($$("body"))[0].innerHTML = ' + stringHTML + ';';
+                let evaluation = 'inspect($$(".timeTravel"))[0].innerHTML=' + stringHTML + ';'
                 chrome.devtools.inspectedWindow.eval(evaluation, function () {
+                    return
+                })
+                let evaluation2 = 'inspect($$(".timeTravel"))[0].setAttribute("style", "width:100%; height: 100vh; background-color: rgba(255,255,255,.9); position: absolute; top: 0; left: 0; z-index: 99; display: block")'
+                chrome.devtools.inspectedWindow.eval(evaluation2, function () {
                     return
                 })
             })
@@ -111,6 +153,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         }
 
         onRangeChange(slider, timeTravel);
+        onButtonClick(timeTravelButton, stopTimeTravel);
         let data = []
 
         function updater() {
@@ -269,7 +312,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             data.push(new treeNode(node))
                         })
 
-                        data[1].html = domNodes[0].innerHTML;
+                        data[1].html = domNodes[0].innerHTML.slice(0, domNodes[0].innerHTML.length - 110);
                         
                     // console.log('data', data)
                             
@@ -527,12 +570,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         return d.children || d._children ? "end" : "start";
                     })
                     .style('fill', function (d) {
-                        if (themeColor === 'default') {return 'black'}
-                        else {return 'white'}
+                        if (themeColor === 'default') {
+                            return 'black'
+                        } else {
+                            return 'white'
+                        }
                     })
                     .on("click", function (d) {
                         clickHandler(d);
-                        console.log(d.path())
                         let pathToRoot = d.links();
                         pathToRoot.forEach((el) => el.attr('opacity', '.4'))
                     })
@@ -565,7 +610,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         return "rgba(211, 211, 211, .6)"
                     }
                 })
-                
+
                 //coloring of circles based on what node is clicked
                 d3.selectAll("circle").style("opacity", function (d) {
                     if (d.color) {
@@ -573,8 +618,8 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     } else {
                         return ".8"
                     }
-                })     
-                
+                })
+
                 //coloring of text based on what node is clicked
                 d3.selectAll("text").style("opacity", function (d) {
                     if (d.color) {
@@ -733,13 +778,15 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     sidebar.setAttribute('id', 'sidebar');
 
                     console.log(d)
-
+                    // add class to the top link for now
+                    const topLink = panel.document.getElementById('viz-link');
+                    topLink.innerHTML = "<a href='#'>Component Inspector</a>";
+                    topLink.classList.add('active');
                     // populate the section with our headings
                     const contentdiv = document.createElement('div');
                     contentdiv.setAttribute('id', 'app_content');
                     contentdiv.innerHTML = `
                             <a href="#" id="close_sidebar"></a>
-                            <h2>Component Inspector</h2>
                             <h3>${d.data.name.slice(0, d.data.name.lastIndexOf("-"))}</h3>
                             <h4><a href="#" id="prop_handler">Props</a><span></span></h4>
                             <ul id="${d.data.name}Props" class="props-list">
@@ -749,7 +796,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             <ul id="${d.data.name}Variables" class="vars-list">
 
                             </ul>
-                            <h4><a href="#" id="slot_handler">Slot</a><span></span></h4>
+                            <h4 id='slot_handler'>Slot</h4>
                             <ul id="slot-list" class="slot-list opened">
                                 <li><p>${(d.data.slots) ? d.data.slots : "No slot/data"}</p></li>
                             </ul>
@@ -758,12 +805,20 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     panel.document.getElementById('sidebar').appendChild(contentdiv);
                     panel.document.getElementById('prop_handler').addEventListener('click', propToggle);
                     panel.document.getElementById('vars_handler').addEventListener('click', varToggle);
+                    panel.document.getElementById('method_handler').addEventListener('click', methodToggle);
                     // click handlers for sidebar sections
                     function propToggle(e) {
                         e.preventDefault();
-                       var element = panel.document.querySelector('.props-list').classList.toggle('opened');
-                       console.log(element)
+                        var element = panel.document.querySelector('.props-list').classList.toggle('opened');
+                        console.log(element)
                     }
+
+                    function methodToggle(e) {
+                        e.preventDefault();
+                        var element = panel.document.querySelector('.methods-list').classList.toggle('opened');
+                        console.log(element)
+                    }
+
                     function varToggle(e) {
                         e.preventDefault();
                         panel.document.querySelector('.vars-list').classList.toggle('opened');
@@ -788,7 +843,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             }
                         }
                         const varLength = document.createElement('span');
-                        varLength.innerHTML = ` (${d.data.variables.length})` ;
+                        varLength.innerHTML = ` (${d.data.variables.length})`;
                         panel.document.getElementById('vars_handler').appendChild(varLength);
                     };
 
@@ -807,12 +862,15 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             propList.appendChild(prop);
                         }
                         const propLength = document.createElement('span');
-                        propLength.innerHTML = ` (${d.data.props.length})` ;
+                        propLength.innerHTML = ` (${d.data.props.length})`;
                         panel.document.getElementById('prop_handler').appendChild(propLength);
                     };
 
                     function closeSidebar() {
                         const remove = panel.document.getElementById("sidebar");
+                        const topLink = panel.document.getElementById('viz-link');
+                        topLink.innerHTML = "<a href='#'>App Visualization</a>";
+                        topLink.classList.remove('active');
                         panel.document.getElementById('contentContainer').removeChild(remove);
                     }
 
