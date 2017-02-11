@@ -10,7 +10,6 @@
     },
     "devtools_page": "devtools.html",
     "permissions": [
-        "tabs",
         "storage",
         "activeTab",
         "<all_urls>",

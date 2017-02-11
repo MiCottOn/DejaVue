@@ -81,18 +81,8 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         slider.setAttribute('value', '0');
         slider.setAttribute('style', 'width: 400px');
 
-        let refresh = document.createElement("div");
-
-        refresh.innerHTML = "<h4 style='color: #999'>Once you've traveled refresh your tab and close/open Dev Tools to resume tree updates</h4>"
-
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
         _panelWindow.document.getElementById('treeContainer').appendChild(timeTravelButton)
-
-        _panelWindow.document.addEventListener('DOMContentLoaded', function() {
-            var link = _panelWindow.document.getElementById('timeTravelButton');
-            // onClick's logic below:
-            link.addEventListener('click', startTimeTravel);
-        });
 
         function onRangeChange(rangeInputElmt, listener) {
 
@@ -123,11 +113,16 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
         function onButtonClick(rangeInputElmt, listener) {
             rangeInputElmt.addEventListener("click", function (evt) {
-                    listener(evt.target.value);
+                listener(evt.target.value);
             });
         }
 
         let newHTML;
+        let pageBgColor;
+
+        chrome.storage.sync.get('backgroundColor', function (result) {
+            pageBgColor = result.backgroundColor
+        })
 
         const timeTravel = function (index) {
             chrome.storage.sync.set({
@@ -144,7 +139,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 chrome.devtools.inspectedWindow.eval(evaluation, function () {
                     return
                 })
-                let evaluation2 = 'inspect($$(".timeTravel"))[0].setAttribute("style", "width:100%; height: 100vh; background-color: rgba(255,255,255,.9); position: absolute; top: 0; left: 0; z-index: 99; display: block")'
+                let evaluation2 = 'inspect($$(".timeTravel"))[0].setAttribute("style", "width:100%; height: 100vh; background-color: ' + pageBgColor + '; position: absolute; top: 0; left: 0; z-index: 999999;")'
                 chrome.devtools.inspectedWindow.eval(evaluation2, function () {
                     return
                 })
@@ -251,6 +246,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             this.variables = [];
                             this.props = [];
                             this.slots = [];
+                            this.methods = [];
                             this.width = node.$el.getBoundingClientRect().width;
                             this.height = node.$el.getBoundingClientRect().height;
                             this.top = node.$el.getBoundingClientRect().top;
@@ -258,41 +254,58 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     // this.directives = [];
                         }
                     // run each component through the DVconstructor
+                                        console.log('components', components)
+
                         function createDvComps(components) {
                             for (let i = 0; i < components.length; i += 1) {
                                 node = components[i];
                                 dvComponents.push(new CompConstructor(node));
-                                let varKeys = Object.keys(node.$data).filter((key) => {
-                                    if (key.match(/\s/g)) return false;
-                                    return true;
-                                });
-
-                                if (varKeys) {
-                                    varKeys.forEach((variable) => {
-                                        if (variable) dvComponents[dvComponents.length - 1].variables.push({ [variable]: node.$data[variable] });
-                                    });
-                                }
 
                                 if(node.$slots.default) 
                                 {
                                     dvComponents[dvComponents.length - 1].slots.push(node.$slots.default[0].text);
                                 }    
                                 
-                                compElem = Object.keys(node);
-                                compVals = Object.values(node);
+                                compElem = Object.keys(node._data);
+                                compVals = Object.values(node._data);
                                 for (let j = 0; j < compElem.length; j++) {
-                                    if (compElem[j][0] !== '_' && compElem[j][0] !== '$') {
-                                        if (typeof compVals[j] === 'function') dvComponents[dvComponents.length - 1].props.push(compElem[j] + ': Function');
-                                        else if (Array.isArray(compVals[j])) dvComponents[dvComponents.length - 1].props.push(compElem[j] + ': ' + compVals[j]);
-                                        else dvComponents[dvComponents.length - 1].props.push(compElem[j] + ': ' + compVals[j]);
-                                    }
+                                    if (typeof compVals[j] === 'function') dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': Function');
+                                    else if (Array.isArray(compVals[j])) dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': ' + JSON.stringify(compVals[j]));
+                                    else if (typeof compVals[j] === 'string') dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': "' + compVals[j] +'"');
+                                    else dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': ' + compVals[j]);
                                 }
+
+                                let methodKeys = Object.keys(node).filter((el) => {
+                                    if(el[0] === '_' || el[0] === '$') return false
+                                    else if(typeof node[el] === 'function') return true;
+                                    else return false;
+                                })
+
+                                console.log(methodKeys)
+
+                                if (methodKeys) {
+                                    methodKeys.forEach((method) => {
+                                        if (method) dvComponents[dvComponents.length - 1].methods.push(method);
+                                    });
+                                }
+
+                                let propKeys = Object.keys(node).filter((el) => {
+                                    if (el.indexOf('_c') > -1 || el.indexOf('_data') > -1 || el.indexOf('_events') > -1 || el.indexOf('_hasHookEvent') > -1 || el.indexOf('_inactive') > -1 || el.indexOf('_isBeingDestroyed') > -1 || el.indexOf('_isDestroyed') > -1 || el.indexOf('_isMounted') > -1 || el.indexOf('_isVue') > -1 || el.indexOf('_renderProxy') > -1 || el.indexOf('_self') > -1 || el.indexOf('_staticTrees') > -1 || el.indexOf('_uid') > -1 || el.indexOf('_vnode') > -1 || el.indexOf('_watcher') > -1 || el.indexOf('_watchers') > -1 || el[0] === '$' || typeof node[el] === 'function') {return false}
+                                    else if (compElem.indexOf(el) > -1) {return false}
+                                    else {return true}
+                                })
+
+                                if (propKeys) {
+                                    propKeys.forEach((prop) => {
+                                        if (prop) dvComponents[dvComponents.length - 1].props.push(prop);
+                                    });
+                                }
+
                             }
                             return dvComponents;
                         };
                         createDvComps(components);
-                    // console.log('components', components)
-                    // console.log('deja vue components1', dvComponents)
+                     console.log('deja vue components1', dvComponents)
                         
                     // conversion of components array to JSON object for D3 visualization  
                         data = [new treeNode({name: 'Vuee', parent: undefined})]
@@ -303,6 +316,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             this.props = node.props;
                             this.variables = node.variables;
                             this.slots = node.slots;
+                            this.methods = node.methods;
                             this.width = node.width;
                             this.height = node.height;
                             this.top = node.top;
@@ -394,7 +408,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                                 flag = (JSON.stringify(current[i]) === JSON.stringify(compare[j])) ? true : false;
                                 if (!flag) {
                                     let differences = DeepDiff(current[i], compare[j]);
-                                    current[i].changes = differences
+                                    current[i].changes = differences.filter((el) => {
+                                        if (el.path.indexOf('top') > -1 || el.path.indexOf('bottom') > -1 || el.path.indexOf('left') > -1 || el.path.indexOf('right') > -1) return false
+                                        else return true
+                                    })
                                     console.log('differences', differences, 'current', current[i].changes)
                                 }
                                 break;
@@ -538,10 +555,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         return d._children ? "#42b983" : "#fff";
                     })
                     .style('stroke', function (d) {
-                        if (d.data.changes) return 'rgba(44, 62, 80, .90)';
+                        if (d.data.changes && d.data.changes.length > 0) return 'rgba(44, 62, 80, .90)';
                     })
                     .style('stroke-width', function (d) {
-                        if (d.data.changes) return '5';
+                        if (d.data.changes && d.data.changes.length > 0) return '5';
                     })
                     .on('click', click)
                     .on("mouseover", function (d) {
@@ -788,11 +805,15 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     contentdiv.innerHTML = `
                             <a href="#" id="close_sidebar"></a>
                             <h3>${d.data.name.slice(0, d.data.name.lastIndexOf("-"))}</h3>
-                            <h4><a href="#" id="prop_handler">Props</a><span></span></h4>
+                            <h4><a href="#" id="methods_handler">Methods</a><span></span></h4>
+                            <ul id="${d.data.name}Methods" class="methods-list">
+
+                            </ul>
+                            <h4><a href="#" id="props_handler">Props</a><span></span></h4>
                             <ul id="${d.data.name}Props" class="props-list">
 
                             </ul>
-                            <h4><a href="#" id="vars_handler">Vars</a><span></span></h4>
+                            <h4><a href="#" id="vars_handler">Variables/Data</a><span></span></h4>
                             <ul id="${d.data.name}Variables" class="vars-list">
 
                             </ul>
@@ -803,15 +824,17 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         `;
                     panel.document.getElementById('contentContainer').appendChild(sidebar);
                     panel.document.getElementById('sidebar').appendChild(contentdiv);
-                    panel.document.getElementById('prop_handler').addEventListener('click', propToggle);
+                    panel.document.getElementById('props_handler').addEventListener('click', propToggle);
                     panel.document.getElementById('vars_handler').addEventListener('click', varToggle);
- //                 panel.document.getElementById('method_handler').addEventListener('click', methodToggle);
+                    panel.document.getElementById('methods_handler').addEventListener('click', methodToggle);
+                    //                 panel.document.getElementById('method_handler').addEventListener('click', methodToggle);
                     // click handlers for sidebar sections
                     function propToggle(e) {
                         e.preventDefault();
                         var element = panel.document.querySelector('.props-list').classList.toggle('opened');
                         console.log(element)
                     }
+
 
                     function methodToggle(e) {
                         e.preventDefault();
@@ -827,6 +850,26 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     panel.document.getElementById('close_sidebar').addEventListener('click', closeSidebar)
 
                     // populate the headings with the component data
+                    //popular methods on sidebar
+                    let methodList = panel.document.getElementById(d.data.name + "Methods");
+                    if (d.data.methods === "undefined") {
+                        let method = document.createElement("li");
+                        method.setAttribute('id', d.data.name + 'MethodUndefined');
+                        method.innerHTML = "undefined";
+                        method.appendChild(method);
+                    } else {
+                        for (let i = 0; i < d.data.methods.length; i += 1) {
+                            let method = document.createElement("li");
+                            method.setAttribute('id', d.data.name + 'Method');
+                            method.innerHTML = d.data.methods[i];
+                            methodList.appendChild(method);
+                        }
+                        const methodLength = document.createElement('span');
+                        methodLength.innerHTML = ` (${d.data.methods.length})`;
+                        panel.document.getElementById('methods_handler').appendChild(methodLength);
+                    };
+
+                    //popular variables on sidebar
                     let variableList = panel.document.getElementById(d.data.name + "Variables");
                     if (d.data.variables === "undefined") {
                         let variable = document.createElement("li");
@@ -835,12 +878,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         variableList.appendChild(variable);
                     } else {
                         for (let i = 0; i < d.data.variables.length; i += 1) {
-                            for (key in d.data.variables[i]) {
-                                let variable = document.createElement("li");
-                                variable.setAttribute('id', d.data.name[key] + 'Variable');
-                                variable.innerHTML = (typeof d.data.variables[i][key] === 'object') ? key + ": Function" : key + ": " + d.data.variables[i][key];
-                                variableList.appendChild(variable);
-                            }
+                            let variable = document.createElement("li");
+                            variable.setAttribute('id', d.data.name + 'Variable');
+                            variable.innerHTML = d.data.variables[i];
+                            variableList.appendChild(variable);
                         }
                         const varLength = document.createElement('span');
                         varLength.innerHTML = ` (${d.data.variables.length})`;
@@ -863,7 +904,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         }
                         const propLength = document.createElement('span');
                         propLength.innerHTML = ` (${d.data.props.length})`;
-                        panel.document.getElementById('prop_handler').appendChild(propLength);
+                        panel.document.getElementById('props_handler').appendChild(propLength);
                     };
 
                     function closeSidebar() {
@@ -881,12 +922,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         let changeArray = [];
                         for (let i = 0; i < d.data.changes.length; i += 1) {
                             let changes = d.data.changes[i];
-                            if (changes.path.includes("html") || changes.path.includes("width") || changes.path.includes("height") || changes.path.includes("top") || changes.path.includes("bottom") || changes.path.includes("left") || changes.path.includes("right")) {} else {
-                                let propIndex = JSON.stringify(changes.rhs).indexOf(":");
-                                let prop = JSON.stringify(changes.rhs).slice(1, propIndex);
-                                let oldVal = JSON.stringify(changes.rhs).slice(propIndex + 1, JSON.stringify(changes.rhs).length - 1);
-                                let newVal = JSON.stringify(changes.lhs).slice(propIndex + 1, JSON.stringify(changes.lhs).length - 1);
-                                let changeText = `${prop} changed from ${oldVal} to ${newVal}`;
+                            if (changes.path.includes("html") || changes.path.includes("top") || changes.path.includes("bottom") || changes.path.includes("left") || changes.path.includes("right")) { d.data.changes.splice(i, 1) } else {
+                                let prop = JSON.stringify(changes.path[0]).slice(1, changes.path[0].length + 1);
+                                console.log(prop)
+                                let oldVal = (typeof changes.rhs === 'number') ? Math.floor(changes.rhs) : changes.rhs.slice(0, changes.rhs.length);
+                                let newVal = (typeof changes.lhs === 'number') ? Math.floor(changes.lhs) : changes.lhs.slice(0, changes.lhs.length);
+                                let changeText = (prop === 'height' || prop === 'width') ? `${prop} changed from ${oldVal} to ${newVal}` : `${oldVal} changed to ${newVal}`;
                                 changeArray.push(changeText)
                             }
                         }
@@ -894,7 +935,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         //create HTMl consisting of changes
                         let htmlString = '<ul class="opened">';
                         if (changeArray.length === 0) {
-                            htmlString = `${htmlString} <li>No state changes occurred on this component</li>`
+                            return
                         } else {
                             for (let i = 0; i < changeArray.length; i += 1) {
                                 htmlString = htmlString + '<li>' + changeArray[i] + '</li>'
