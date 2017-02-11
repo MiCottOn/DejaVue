@@ -805,7 +805,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     panel.document.getElementById('sidebar').appendChild(contentdiv);
                     panel.document.getElementById('prop_handler').addEventListener('click', propToggle);
                     panel.document.getElementById('vars_handler').addEventListener('click', varToggle);
-                    panel.document.getElementById('method_handler').addEventListener('click', methodToggle);
+ //                 panel.document.getElementById('method_handler').addEventListener('click', methodToggle);
                     // click handlers for sidebar sections
                     function propToggle(e) {
                         e.preventDefault();
