@@ -245,6 +245,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             this.variables = [];
                             this.props = [];
                             this.slots = [];
+                            this.methods = [];
                             this.width = node.$el.getBoundingClientRect().width;
                             this.height = node.$el.getBoundingClientRect().height;
                             this.top = node.$el.getBoundingClientRect().top;
@@ -256,37 +257,52 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             for (let i = 0; i < components.length; i += 1) {
                                 node = components[i];
                                 dvComponents.push(new CompConstructor(node));
-                                let varKeys = Object.keys(node.$data).filter((key) => {
-                                    if (key.match(/\s/g)) return false;
-                                    return true;
-                                });
-
-                                if (varKeys) {
-                                    varKeys.forEach((variable) => {
-                                        if (variable) dvComponents[dvComponents.length - 1].variables.push({ [variable]: node.$data[variable] });
-                                    });
-                                }
 
                                 if(node.$slots.default) 
                                 {
                                     dvComponents[dvComponents.length - 1].slots.push(node.$slots.default[0].text);
                                 }    
                                 
-                                compElem = Object.keys(node);
-                                compVals = Object.values(node);
-                                for (let j = 0; j < compElem.length; j++) {
-                                    if (compElem[j][0] !== '_' && compElem[j][0] !== '$') {
-                                        if (typeof compVals[j] === 'function') dvComponents[dvComponents.length - 1].props.push(compElem[j] + ': Function');
-                                        else if (Array.isArray(compVals[j])) dvComponents[dvComponents.length - 1].props.push(compElem[j] + ': ' + compVals[j]);
-                                        else dvComponents[dvComponents.length - 1].props.push(compElem[j] + ': ' + compVals[j]);
-                                    }
-                                }
+                                // compElem = Object.keys(node._data);
+                                // compVals = Object.values(node._data);
+                                // for (let j = 0; j < compElem.length; j++) {
+                                //     if (typeof compVals[j] === 'function') dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': Function');
+                                //     else if (Array.isArray(compVals[j])) dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': ' + compVals[j]);
+                                //     else dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': ' + compVals[j]);
+                                // }
+
+                                let methodKeys = Object.keys(node).filter((el) => {
+                                    if(el[0] !== '_c' && el[j] !== '_$')
+                                    else if(typeof node[el] === 'function') return true;
+                                    else return false;
+                                })
+
+                                console.log(methodKeys)
+
+                                // if (methodKeys) {
+                                //     methodKeys.forEach((method) => {
+                                //         if (method) dvComponents[dvComponents.length - 1].methods.push(method + ': ' + JSON.stringify(node[method]) );
+                                //     });
+                                // }
+
+                                // let propKeys = Object.keys(node).filter((el) => {
+                                //     if (el[j] !== '_c' && el[j] !== '_data' && el[j] !== '_events' && el[j] !== '_hasHookEvent' && el[j] !== '_inactive' && el[j] !== '_isBeingDestroyed' && el[j] !== '_isMounted' && el[j] !== '_isVue' && el[j] !== '_renderProxy' && el[j] !== '_self' && el[j] !== '_staticTrees' && el[j] !== '_uid' && el[j] !== '_vnode' && el[j] !== '_watcher' && el[j] !== '_watchers' && el[j][0] !== '$') {return false}
+                                //     else if (dvComponents[dvComponents.length - 1].variables.includes(el)) return false;
+                                //     else return true
+                                // })
+
+                                // if (propKeys) {
+                                //     propKeys.forEach((prop) => {
+                                //         if (prop) dvComponents[dvComponents.length - 1].props.push(prop + ': ' + node[prop]);
+                                //     });
+                                // }
+
                             }
                             return dvComponents;
                         };
                         createDvComps(components);
                     // console.log('components', components)
-                    // console.log('deja vue components1', dvComponents)
+                     console.log('deja vue components1', dvComponents)
                         
                     // conversion of components array to JSON object for D3 visualization  
                         data = [new treeNode({name: 'Vuee', parent: undefined})]
@@ -297,6 +313,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             this.props = node.props;
                             this.variables = node.variables;
                             this.slots = node.slots;
+                            this.methods = node.methods;
                             this.width = node.width;
                             this.height = node.height;
                             this.top = node.top;
@@ -781,6 +798,10 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             <a href="#" id="close_sidebar"></a>
                             <h2>Component Inspector</h2>
                             <h3>${d.data.name.slice(0, d.data.name.lastIndexOf("-"))}</h3>
+                            <h4><a href="#" id="method_handler">Methods</a><span></span></h4>
+                            <ul id="${d.data.name}Methods" class="methods-list">
+
+                            </ul>
                             <h4><a href="#" id="prop_handler">Props</a><span></span></h4>
                             <ul id="${d.data.name}Props" class="props-list">
 
