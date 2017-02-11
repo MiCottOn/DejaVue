@@ -56,6 +56,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             appNode.classList.add('darkTheme')
         }
         const stopTimeTravel = function () {
+            hideButton();
             let evaluation2 = 'inspect($$(".timeTravel"))[0].setAttribute("style", "width:100%; height: 100vh; background-color: #FFF; position: absolute; top: 0; left: 0; z-index: 99; display: none")'
             chrome.devtools.inspectedWindow.eval(evaluation2, function () {
                 return
@@ -69,7 +70,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
         let timeTravelButton = document.createElement("button");
         timeTravelButton.setAttribute("id", "timeTravelButton")
-        timeTravelButton.innerHTML = 'Return to most recent state';
+        timeTravelButton.innerHTML = 'Resume App';
 
 
 
@@ -79,10 +80,19 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         slider.setAttribute('step', '1');
         slider.setAttribute('max', '0');
         slider.setAttribute('value', '0');
-        slider.setAttribute('style', 'width: 400px');
+        slider.setAttribute('style', 'width: 350px');
+        slider.addEventListener('focus', showButton);
 
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
-        _panelWindow.document.getElementById('treeContainer').appendChild(timeTravelButton)
+        
+        function showButton() {
+            let treeviz = _panelWindow.document.getElementById('treeVisualization');
+            _panelWindow.document.getElementById('treeContainer').insertBefore(timeTravelButton, treeviz);
+        }
+
+        function hideButton() {
+            _panelWindow.document.getElementById('treeContainer').removeChild(timeTravelButton);
+        }
 
         function onRangeChange(rangeInputElmt, listener) {
 
@@ -831,6 +841,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     // click handlers for sidebar sections
                     function propToggle(e) {
                         e.preventDefault();
+                        panel.document.getElementById('props_handler').classList.toggle('active-sidebar');
                         var element = panel.document.querySelector('.props-list').classList.toggle('opened');
                         console.log(element)
                     }
@@ -838,12 +849,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
                     function methodToggle(e) {
                         e.preventDefault();
+                        panel.document.getElementById('methods_handler').classList.toggle('active-sidebar');
                         var element = panel.document.querySelector('.methods-list').classList.toggle('opened');
                         console.log(element)
                     }
 
                     function varToggle(e) {
                         e.preventDefault();
+                        panel.document.getElementById('vars_handler').classList.toggle('active-sidebar');   
                         panel.document.querySelector('.vars-list').classList.toggle('opened');
                     }
                     // add an event listener
@@ -947,7 +960,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         const changesDiv = document.createElement('div');
                         changesDiv.setAttribute('id', 'change_content');
                         changesDiv.innerHTML = `
-                            <h4><a href="#" class="changed">Changes</a></h4>
+                            <h4><a href="#" class="changed active-sidebar">Changes</a></h4>
                             ${htmlString}
                         `;
                         panel.document.getElementById('app_content').appendChild(changesDiv);

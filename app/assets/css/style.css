@@ -47,6 +47,9 @@
   background-color:rgb(36,36,36);
 }
 
+html, #app, #contentContainer {
+  height: 100%;
+}
 body {
   background: white;
   font-family: 'OpenSans', sans-serif;
@@ -179,7 +182,7 @@ div.tooltip {
 ============================================================== */
 #sidebar {
   position: absolute;
-  height: 100vh;
+  height: 100%;
   overflow-y: scroll;
   top: 0;
   right: 0;
@@ -188,6 +191,7 @@ div.tooltip {
   color: #FAFAFA;
   padding: 40px 0 10px;
   border-bottom: 5px solid #4fc08d;
+  overflow-wrap: break-word;
 }
 
 .layer-1 {
@@ -234,11 +238,12 @@ div.tooltip {
   text-align: left;
   font-size: 11px;
   text-transform: uppercase;
+  background: rgba(255,255,255,.05);
   transition: background .25s ease;
 }
 
-#sidebar a:hover {
-  background: rgba(255,255,255,.05);
+#sidebar h4 a:hover, #slot_handler, .active-sidebar {
+  background: rgba(0,0,0,.2)!important;
 }
 
 #close_sidebar {
@@ -273,6 +278,10 @@ div.tooltip {
   transform: rotate(315deg)
 }
 
+#close_sidebar:hover {
+  background: none!important;
+}
+
 /*DOM Highlight*/
 .highlight {
   background-color: rgba(137, 196, 219, .2);
@@ -292,4 +301,68 @@ div.tooltip {
     position: absolute;
     top: 10px;
     left: 0;
+}
+
+/* Range Slider 
+============================================================== */
+input[type=range] {
+  -webkit-appearance: none; 
+  background: transparent; 
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+
+input[type=range]:focus {
+  outline: none; 
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #4fc08d;
+  cursor: pointer;
+  margin-top: -3px;
+  position: relative;
+  margin-left: -2px; 
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  background: #eee;
+}
+
+input[type=range]:focus::-webkit-slider-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #4fc08d;
+  cursor: pointer;
+  margin-top: -6px;
+  position: relative;
+  border: 5px solid rgba(0,0,0,.2);
+}
+
+#timeTravelButton {
+  -webkit-appearance: none;
+  display: block;
+  font-family: 'OpenSans', "Avenir",  sans-serif;
+  outline: 0;
+  border: 0;
+  padding: 0 10px;
+  text-align: center;
+  margin: 15px auto 0;
+  font-size: 11px;
+  height: 26px;
+  line-height: 26px;
+  text-transform: uppercase;
+  border-radius: 4px;
+  background: #2c3e50;
+  color: white;
+  cursor: pointer;
 }
