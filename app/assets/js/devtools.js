@@ -81,18 +81,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         slider.setAttribute('value', '0');
         slider.setAttribute('style', 'width: 400px');
 
-        let refresh = document.createElement("div");
-
-        refresh.innerHTML = "<h4 style='color: #999'>Once you've traveled refresh your tab and close/open Dev Tools to resume tree updates</h4>"
-
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
         _panelWindow.document.getElementById('treeContainer').appendChild(timeTravelButton)
 
-        _panelWindow.document.addEventListener('DOMContentLoaded', function() {
-            var link = _panelWindow.document.getElementById('timeTravelButton');
-            // onClick's logic below:
-            link.addEventListener('click', startTimeTravel);
-        });
 
         function onRangeChange(rangeInputElmt, listener) {
 
@@ -128,6 +119,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         }
 
         let newHTML;
+        let pageBgColor;
+
+        chrome.storage.sync.get('backgroundColor', function (result) { pageBgColor = result.backgroundColor })
 
         const timeTravel = function (index) {
             chrome.storage.sync.set({
@@ -144,7 +138,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 chrome.devtools.inspectedWindow.eval(evaluation, function () {
                     return
                 })
-                let evaluation2 = 'inspect($$(".timeTravel"))[0].setAttribute("style", "width:100%; height: 100vh; background-color: rgba(255,255,255,.9); position: absolute; top: 0; left: 0; z-index: 99; display: block")'
+                let evaluation2 = 'inspect($$(".timeTravel"))[0].setAttribute("style", "width:100%; height: 100vh; background-color: ' + pageBgColor +'; position: absolute; top: 0; left: 0; z-index: 999999;")'
                 chrome.devtools.inspectedWindow.eval(evaluation2, function () {
                     return
                 })

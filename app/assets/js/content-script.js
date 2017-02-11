@@ -24,6 +24,16 @@
 let count;
 let oldCount;
 let check;
+$(document).ready(function () {
+    const bgColor = $('body').css('backgroundColor')
+
+    chrome.storage.sync.set({
+        'backgroundColor': bgColor
+    }, function () {
+        return
+    });
+})
+
 
 //inspect page for node count changes and if change then capture state on devtools.js
 
