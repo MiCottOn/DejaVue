@@ -271,7 +271,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                                 for (let j = 0; j < compElem.length; j++) {
                                     if (typeof compVals[j] === 'function') dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': Function');
                                     else if (Array.isArray(compVals[j])) dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': ' + JSON.stringify(compVals[j]));
-                                    else if (typeof compVals[j] === 'string') dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': "' + compVals[j] +'"');
+                                    else if (typeof compVals[j] === 'string') dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': "' + compVals[j].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") +'"');
                                     else dvComponents[dvComponents.length - 1].variables.push(compElem[j] + ': ' + compVals[j]);
                                 }
 
