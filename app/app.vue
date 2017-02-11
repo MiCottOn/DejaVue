@@ -6,7 +6,7 @@
       </div>
       <div id="headerRight">
         <ul>
-          <li v-bind:class="{active: a}"><router-link to="/tree">Application Visualization</router-link></li>
+          <li id="viz-link"><router-link to="/tree">App Visualization</router-link></li>
           <!--<li v-bind:class="{active: c}" @click="toggleActive"><router-link to="/timeline">Time Traveler</router-link></li>-->
           <!--<li v-bind:class="{active: b}" @click="toggleActive"><router-link to="/render">Stress Testing</router-link></li>-->
         </ul>
@@ -36,29 +36,6 @@ export default {
     return {
       title: 'DejaVue',
       tagline: 'Vue component visualizer',
-      a: true,
-      b: false,
-      c: false
-    }
-  }, 
-  methods: {
-    toggleActive: function() {
-      if (this.a) {
-        this.a = false;
-        this.b = true;
-        this.c = false;
-      }
-      else if (this.b) {
-        this.b = false;
-        this.a = true;
-        this.c = false;
-      }
-
-      else {
-        this.b = false;
-        this.a = false;
-        this.c = true;
-      }
     }
   }
 }

@@ -1,3 +1,16 @@
+/* Fonts
+============================================================== */
+@font-face {
+  font-family: 'OpenSans';
+  src: local('OpenSans'), local('OpenSans-Regular'), url('../assets/OpenSans-Regular.woff2') format('woff2');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'OpenSans';
+  src: local('OpenSans-Bold'), url('../assets/OpenSans-SemiBold.woff2') format('woff2');
+  font-weight: bold;
+}
 /* Universal
 ============================================================== */
 * {
@@ -35,7 +48,8 @@
 }
 
 body {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  background: white;
+  font-family: 'OpenSans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -47,7 +61,7 @@ body {
 }
 
 a {
-  color: #42b983;
+  color: rgba(40, 50, 61, .9);
   text-decoration: none;
   cursor: pointer;
 }
@@ -59,8 +73,7 @@ a {
   flex-direction: row;
   width: 100%;
   height: 40px;
-  background: #42b983;
-  box-shadow: 0px 0px 10px 0 #237550;
+  background: #fafafa;
   margin: 0;
   position: fixed;
   top: 0;
@@ -68,23 +81,22 @@ a {
 }
 
 #headerLeft {
-  text-align: left;
   width: 20%;
-  padding-left: 50px;
+  padding-left: 20px;
+  position: relative;
 }
 
-h2 a {
-  display: block;
-  height: 40px;
+header h2 a {
+  position: absolute;
+  top: 8px;
+  left: 20px;
+  color: rgba(40, 50, 61, .9);
   font-weight: bold;
-  color: #FFF;
-  padding: 7px;
 }
 
 #headerRight {
   flex: 1;
   text-align: right;
-  padding-right: 20px;
   min-width: 320px;
 }
 
@@ -95,26 +107,32 @@ h2 a {
 
 #headerRight li {
   height: 40px;
+  position: absolute;
+  width: 200px;
+  margin: 0;
 }
 
 #headerRight li a {
   display: block;
   width: 100%;
   height: 100%;
-  padding: 12px 10px;
-  color: #FFF;
-  transition: color .25s ease;
+  padding: 14px 10px;
+  font-size: 11px;
+  letter-spacing: .5px;
+  font-weight: bold;
+  text-align: center;
+  color: rgba(40, 50, 61, .9);
+  text-transform: uppercase;
+  transition: all .25s ease;
 }
 
-#headerRight li a:hover {
-  color: #FFF;
-}
-.active {
+/*.active {
   border-bottom: 4px solid #237550;
-}
+}*/
 
 #headerRight li.active a {
   color: #FFF;
+  background: rgba(34, 34, 34, .95);
 }
 
 /* SVG Styles
@@ -162,11 +180,14 @@ div.tooltip {
 #sidebar {
   position: absolute;
   height: 100vh;
-  top: 40px;
+  overflow-y: scroll;
+  top: 0;
   right: 0;
   width: 200px;
-  background: rgba(44, 62, 80, .90);
+  background: rgba(40, 50, 61, .9);
   color: #FAFAFA;
+  padding: 40px 0 10px;
+  border-bottom: 5px solid #4fc08d;
 }
 
 .layer-1 {
@@ -180,48 +201,44 @@ div.tooltip {
 #sidebar ul {
   height: 0;
   overflow: hidden;
-  transition: all .3s ease;
+  transition: all .25s ease;
 }
 
-#sidebar h3 {
-  font-size: 21px;
-  margin-bottom:12px;
-}
-
-#sidebar h4 {
-  margin-bottom: 5px;
-}
-
-#sidebar h4 a {
-  display: block;
-  padding: 10px;
-  width: 100%;
-  height: 100%;
-  position: relative;
-  cursor: pointer;
-  color: white;
-  text-align: left;
-  background: #1b2b3a;
-}
 .opened {
   height: auto!important;
   overflow: visible!important;
 }
 #sidebar li {
   display: block;
-  padding: 8px;
+  padding: 8px 10px;
   margin: 0;
   text-align: left;
 }
 
-#sidebar h2 {
-  padding: 15px 10px;
-  background: #1b2b3a;
+#app_content h3 {
+  background: #4fc08d;
+  padding: 25px;
+  text-align: center;
   color: white;
-  font-size: 16px;
-  margin-bottom: 15px;
+  font-size: 21px;
+  min-height: 70px;
+}
+
+#sidebar h4 a, #slot_handler {
+  color: white;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
   font-weight: bold;
   text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  transition: background .25s ease;
+}
+
+#sidebar a:hover {
+  background: rgba(255,255,255,.05);
 }
 
 #close_sidebar {
@@ -230,7 +247,7 @@ div.tooltip {
   width: 16px;
   height: 16px;
   position: absolute;
-  top: 10px; 
+  top: 52px; 
   right: 5px;
   z-index: 10;
 }
@@ -238,13 +255,13 @@ div.tooltip {
 #close_sidebar:before, #close_sidebar:after {
   content: '';
   display: block;
-  width: 12px;
+  width: 15px;
   height: 2px;
   background: white;
   position: absolute;
   top: 0;
   right: 0;
-  transition: background .3s ease;
+  transition: background .25s ease;
   z-index: 20;
 }
 

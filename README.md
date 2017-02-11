@@ -1,5 +1,7 @@
 # DejaVue - Vue.js visualization and stress testing 
 
+<h4>(Only works with Vue 2.0!)</h4>
+
 ## Installation
 <h3><a href="https://chrome.google.com/webstore/detail/dejavue/jpigngmphmclcmikmcbcfplgnhlnefbp?hl=en">Click here to download the extension!</a></h3>
 
@@ -10,34 +12,29 @@ Make sure you are using Node 6+ and NPM 3+
 <p>2. <code>npm run build</code></p>
 <p>3. Open Chrome extension page</p>
 <p>4. Check "developer mode"</p>
-<p>5. Click "load unpacked extension", and choose the root folder.</p>
+<p>5. Click "load unpacked extension", and choose the entire folder.</p>
 
 ## Building over it
 <p>1. Clone this repo</p>
 <p>2. <code>npm install</code></p>
 <p>3. <code>npm run dev</code></p>
 
-### Want to help contribute? Fork the repo and have at it!
-
-<a href="https://medium.com/@jonajumba/why-were-building-dejavue-js-80e037bf15e3#.tygt4by9o">Why and how we decided to build this</a>
-
 ## Features - all work with and without a state management library (e.g. Vuex)
 <p>1. Application Structure Visualization - Interactive tree </p>
-
-<a href="http://imgur.com/keDUQuW"><img src="http://i.imgur.com/keDUQuW.png"/></a>
-
 <p>2. Component Inspection - view props, variables and slots</p>
-
-<a href="http://imgur.com/xfhzC9f"><img src="http://i.imgur.com/xfhzC9f.png" title="source: imgur.com" /></a>
-
-<p>3. Diff Engine - As you test see which components are being updated and what those changse are</p>
-
-<a href="http://imgur.com/Pth6yuI"><img src="http://i.imgur.com/Pth6yuI.png" title="source: imgur.com" /></a>
-
+<p>3. Diff Engine - As you test see which components are being updated and what those changes are</p>
 <p>4. Time Travel - Move backwards and forwards through your state changes and see both the tree and your application update</p>
-
 <p>5. Component Highlighting - Hover over a tree leaf to highlight the component on your app</p>
 
+## Screenshots
+<a href="http://imgur.com/keDUQuW"><img src="http://i.imgur.com/keDUQuW.png"/></a>
+<a href="http://imgur.com/xfhzC9f"><img src="http://i.imgur.com/xfhzC9f.png" title="source: imgur.com" /></a>
+<a href="http://imgur.com/Pth6yuI"><img src="http://i.imgur.com/Pth6yuI.png" title="source: imgur.com" /></a>
+
+## Everything else
+<p>Want to help contribute? Fork the repo and have at it!</p>
+<p><a href="https://medium.com/@jonajumba/why-were-building-dejavue-js-80e037bf15e3#.tygt4by9o">Why and how we decided to build this</a></p>
+<p>Next on the pipeline: stress testing and moving time travel functionality to inside the tool</p>
 
 Authors:
 <a href="https://github.com/sschwartz0">Scott</a>,
