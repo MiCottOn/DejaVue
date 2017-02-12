@@ -38,7 +38,7 @@ Make sure you are using Node 6+ and NPM 3+
 ## Everything else
 <p>Want to help contribute? Fork the repo and have at it!</p>
 <p><a href="https://medium.com/@jonajumba/why-were-building-dejavue-js-80e037bf15e3#.tygt4by9o">Why and how we decided to build this</a></p>
-<p>Next on the pipeline: stress testing and moving time travel functionality to inside the tool</p>
+<p>Next on the pipeline: Squashing bugs and implementing stress testing</p>
 
 Authors:
 <a href="https://github.com/sschwartz0">Scott</a>,
