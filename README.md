@@ -2,7 +2,7 @@
 
 <h4>(Only works with Vue 2.0!)</h4>
 
-<img src="http://i.makeagif.com/media/2-11-2017/Qal6HH.gif" />
+<img src="http://i.makeagif.com/media/2-11-2017/Qal6HH.gif" width="600px"/>
 
 ## Installation
 <h3><a href="https://chrome.google.com/webstore/detail/dejavue/jpigngmphmclcmikmcbcfplgnhlnefbp?hl=en">Click here to download the extension!</a></h3>
@@ -29,8 +29,8 @@ Make sure you are using Node 6+ and NPM 3+
 <p>5. Component Highlighting - Hover over a tree leaf to highlight the component on your app</p>
 
 ## Screenshots
-<img src="http://i.makeagif.com/media/2-11-2017/Qal6HH.gif" />
-<img src="http://i.makeagif.com/media/2-11-2017/9388A-.gif" />
+<img src="http://i.makeagif.com/media/2-11-2017/9388A-.gif" width="600px" />
+
 ## Everything else
 <p>Want to help contribute? Fork the repo and have at it!</p>
 <p><a href="https://medium.com/@jonajumba/why-were-building-dejavue-js-80e037bf15e3#.tygt4by9o">Why and how we decided to build this</a></p>
