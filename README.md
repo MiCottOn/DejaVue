@@ -29,6 +29,10 @@ Make sure you are using Node 6+ and NPM 3+
 <p>5. Component Highlighting - Hover over a tree leaf to highlight the component on your app</p>
 
 ## Screenshots
+<img src="http://i.imgur.com/bDkokdE.png" width="600px" />
+<img src="http://i.imgur.com/pbBJ7ir.png" width="600px" />
+<img src="http://i.imgur.com/0arU5qP.png" width="600px" />
+
 <img src="http://i.makeagif.com/media/2-11-2017/9388A-.gif" width="600px" />
 
 ## Everything else
