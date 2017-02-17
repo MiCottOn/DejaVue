@@ -141,7 +141,7 @@ header h2 a {
 /* SVG Styles
 ============================================================== */
 svg {
-  margin-left: -200px;
+  margin-left: 0px;
 }
 svg path.link:first-of-type, svg g.node:first-of-type {
   display: none
