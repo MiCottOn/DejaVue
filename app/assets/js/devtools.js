@@ -11,14 +11,15 @@
 
 
 chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', function (extensionPanel) {
-    //  let appNode = panelWindow.document.querySelectorAll('.widget .vbox .panel')[0]
+    // determine theme color in order to use correct colors for devtool
     const themeColor = chrome.devtools.panels.themeName;
 
-    //if true stops recording state to prevent repeats
+    // if user is time traveling stop recording state to prevent repeats
     chrome.storage.sync.set({
         'traveledThroughTime': false
     });
-    //set empty states array
+
+    // initialize empty states array
     chrome.storage.local.set({
         'states': '[]'
     });
@@ -27,10 +28,13 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
     let sidebarAdded = 0;
     let count;
     let oldCount;
+
+    // retrieve previous node count from content script in order to check against new node count to prevent unnecessary running of below functions
     chrome.storage.sync.get('oldCount', function (data) {
         oldCount = data.oldCount
     });
 
+    // append timetravel slider to devtool    
     chrome.devtools.inspectedWindow.eval(`
         let addDVChecker = inspect($$('body'))[0];
         addDVChecker.classList.add('DejaVue');
@@ -50,11 +54,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
     show.then(function (_panelWindow) {
         const appNode = _panelWindow.document.getElementById('app')
+        // set appropriate color theme based off devtool theme
         if (themeColor === 'default') {
             appNode.classList.add('defaultTheme')
         } else {
             appNode.classList.add('darkTheme')
         }
+
+        // append stop button once time travel has started, set time traveling to false to resume capturing state
         const stopTimeTravel = function () {
             hideButton();
             let evaluation2 = 'inspect($$(".timeTravel"))[0].setAttribute("style", "width:100%; height: 100vh; background-color: #FFF; position: absolute; top: 0; left: 0; z-index: 99; display: none")'
@@ -68,12 +75,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             });
         }
 
+        // append stop time travel button        
         let timeTravelButton = document.createElement("button");
         timeTravelButton.setAttribute("id", "timeTravelButton")
         timeTravelButton.innerHTML = 'Resume App';
 
-
-
+        // append time travel slider and move to most recent state after stopping time travel
         let slider = document.createElement("input");
         slider.setAttribute('id', 'slider');
         slider.setAttribute('type', 'range');
@@ -82,22 +89,22 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
         slider.setAttribute('value', '0');
         slider.setAttribute('style', 'width: 350px');
         slider.addEventListener('focus', showButton);
-
         _panelWindow.document.getElementById('treeContainer').appendChild(slider)
-        
+
+        // append stop time travel button
         function showButton() {
             let treeviz = _panelWindow.document.getElementById('treeVisualization');
             _panelWindow.document.getElementById('treeContainer').insertBefore(timeTravelButton, treeviz);
         }
 
+        // remove stop time travel button
         function hideButton() {
             _panelWindow.document.getElementById('treeContainer').removeChild(timeTravelButton);
         }
 
+        // add listeners to time travel slider        
         function onRangeChange(rangeInputElmt, listener) {
-
             var inputEvtHasNeverFired = true;
-
             var rangeValue = {
                 current: undefined,
                 mostRecent: undefined
@@ -118,22 +125,25 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     listener(evt.target.value);
                 }
             });
-
         }
 
+        // add listener to stop time travel button        
         function onButtonClick(rangeInputElmt, listener) {
             rangeInputElmt.addEventListener("click", function (evt) {
                 listener(evt.target.value);
             });
         }
 
+        // initialize state html and background color of page        
         let newHTML;
         let pageBgColor;
 
+        // grab page's background color for state injection
         chrome.storage.sync.get('backgroundColor', function (result) {
             pageBgColor = result.backgroundColor
         })
 
+        // time travel function. receives selected state index. sets time traveling to true to prevent state capture. redraws tree and application to selected state.
         const timeTravel = function (index) {
             chrome.storage.sync.set({
                 'traveledThroughTime': true
@@ -157,10 +167,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
         }
 
+        // add event listeners
         onRangeChange(slider, timeTravel);
         onButtonClick(timeTravelButton, stopTimeTravel);
         let data = []
 
+        // check node counts to determine if eval function should be run
         function updater() {
             let poller = setInterval(function () {
                 chrome.storage.sync.get('count', function (data) {
@@ -172,7 +184,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         `                        
                         domNodes = inspect($$('body'));
                     
-                    // main function to grab and plot data on visualization
+                    // primary function to grab, transform and construct data for visualization and inspection
                         function createDV() {
                     // gets document.body's child nodes which are direct child html elements
                         let keysArray = Object.keys(domNodes[0].children);
@@ -194,10 +206,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         }
                         };
                         findRoots(domNodes[0]);
+
                     // traverses a domNode to push all vue components into components array
                         function findComponents(node) {
                             let childrenArray;
                             if (rootNodes.includes(node)) {
+
                     // fix for apps that have a root with vue$3 instead of __vue__
                             components.push(rootNodes[0].__vue__); 
                             childrenArray = node.__vue__.$children;
@@ -219,7 +233,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             count += 1;
                         } 
                         while(components[0] === components[1]) components.shift();
+
                     // constructor for each component to grab data DejaVue cares about
+
                         function CompConstructor(node) {
                     // -> _uid
                             this.id = node._uid;
@@ -250,9 +266,8 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                                 }
                                 this.parentName = temp + '-' + node.$parent._uid;
                             }
-                    // to be filled by d3 object mapper
+                    // will be filled by d3 object mapper
                             this.children = [];
-                    // grab _data object 
                             this.variables = [];
                             this.props = [];
                             this.slots = [];
@@ -261,10 +276,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             this.height = node.$el.getBoundingClientRect().height;
                             this.top = node.$el.getBoundingClientRect().top;
                             this.left = node.$el.getBoundingClientRect().left;
-                    // this.directives = [];
                         }
-                    // run each component through the DVconstructor
-                                        console.log('components', components)
+
+                    // run each component through the CompConstructor to create DejaVue objects
 
                         function createDvComps(components) {
                             for (let i = 0; i < components.length; i += 1) {
@@ -315,11 +329,11 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             return dvComponents;
                         };
                         createDvComps(components);
-                     console.log('deja vue components1', dvComponents)
                         
-                    // conversion of components array to JSON object for D3 visualization  
+                    // add initial root node for D3 visualization 
                         data = [new treeNode({name: 'Vuee', parent: undefined})]
-                        
+                    
+                    // constructor for D3 compatible objects
                         function treeNode(node) {
                             this.name = node.name;
                             this.parent = node.parentName;
@@ -332,29 +346,27 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             this.top = node.top;
                             this.left = node.left;
                         }
+                    // creates D3 compatible objects for each component  
                         dvComponents.forEach(function(node) {
                             data.push(new treeNode(node))
                         })
-
+                    // grabs HTML of current state for time travel to overlay on application - html only added to one object to prevent unnecessary storage
                         data[1].html = domNodes[0].innerHTML.slice(0, domNodes[0].innerHTML.length - 110);
-                        
-                    // console.log('data', data)
-                            
+                                                    
                         return data
                     }
                     createDV()`,
                         function (data) {
+                            // push the latest state changes to the state store
                             newData.push(data)
-
+                            // save the latest state store to local storage
                             chrome.storage.local.set({
                                 'states': newData
                             });
-
+                            // redraw tree with latest state from local storage
                             chrome.storage.local.get('states', function (result) {
                                 drawTree(result.states, _panelWindow)
                             })
-
-
                         })
                 }
             }, 100);
@@ -363,47 +375,25 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
     });
 
 
-
-
     let dataCompare = -1;
+
+    // function to render tree visualization. takes in state store, chrome panel and selected state for time travel or most recent state if not time traveling
 
     const drawTree = (data, panel, dataIndex = data.length - 1) => {
 
-        // hide vue elements
-        // let len = document.querySelectorAll("*").length;
-        // let newArr = [];
-        // for(let i = 0; i < len; i += 1) {
-        //     if (document.querySelectorAll("*")[i].__vue__) {
-        //         let test = document.querySelectorAll("*")[i]
-        //         test.setAttribute("style", "display: none")
-        //     }
-        // }         
-
-        // show vue elements
-        // let len = document.querySelectorAll("*").length;
-        // for(let i = 0; i < len; i += 1) {
-        //     if (document.querySelectorAll("*")[i].__vue__) {
-        //         let test = document.querySelectorAll("*")[i]
-        //         test.setAttribute("style", "display: block")
-        //     }
-        // }
-
-        //getDiffInStates
-        console.log('old state', data[dataCompare])
-        console.log('new state', data[dataIndex])
-
-        console.log('tree should rerender if nums diff: ', dataCompare, 'data', dataIndex)
+        // set timetravel slider position all the way to the right
         let maxLength = data.length - 1;
         let slider = panel.document.getElementById("slider");
         slider.setAttribute('max', maxLength);
         slider.value = dataIndex;
 
+        // check to see if new index has been selected in order to prevent unnecessary rendering       
         if (dataCompare === dataIndex) return;
         else if (dataCompare !== dataIndex) {
 
             dataCompare = dataIndex;
 
-            console.log('tree rendering this', data)
+            // run diffing algorithm to identify and capture state changes on individual components
             if (data[dataIndex - 1]) {
                 function compareDiff(data) {
                     let flag = true;
@@ -414,15 +404,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
                         for (let j = 0; j < compare.length; j += 1) {
                             if (current[i].name === compare[j].name) {
-                                console.log('comparing', current[i], 'to', compare[j])
                                 flag = (JSON.stringify(current[i]) === JSON.stringify(compare[j])) ? true : false;
                                 if (!flag) {
                                     let differences = DeepDiff(current[i], compare[j]);
+                                    // remove positioning changes which are not state related
                                     current[i].changes = differences.filter((el) => {
                                         if (el.path.indexOf('top') > -1 || el.path.indexOf('bottom') > -1 || el.path.indexOf('left') > -1 || el.path.indexOf('right') > -1) return false
                                         else return true
                                     })
-                                    console.log('differences', differences, 'current', current[i].changes)
                                 }
                                 break;
                             }
@@ -430,14 +419,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     }
                     return flag;
                 }
-
-                console.log(compareDiff(data))
             }
+            // reassign d3 functions to work within the devtoolk panel
             d3 = panel.d3
-            //append component data to sidebar
             data = data[dataIndex];
             // d3 tree creation   
-            // create a name: node map
+            // create a new object with parent/child relationships
             var dataMap = data.reduce(function (map, node) {
                 map[node.name] = node;
                 return map;
@@ -445,13 +432,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
             // create the tree array
             let treeData = [];
-            // if (document.getElementById('treeVisualization')) {
-            //     let removal = document.getElementById('treeVisualization')
-            //     removal.parentNode.removeChild(removal);
-            // }
+            // remove old visualization to prevent rendering over it
             d3.select("svg#treeVisualization").remove()
             data.forEach(function (node) {
-                // add to parent
                 var parent = dataMap[node.parent];
                 if (parent) {
                     // create child array if it doesn't exist
@@ -465,7 +448,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
             });
             treeData = Object.assign({}, treeData)[0];
 
-            // console.log(treeData)
+            // set svg dimensions and margins            
             var margin = {
                     top: 20,
                     right: 90,
@@ -485,7 +468,9 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 .call(d3.zoom().on("zoom", function () {
                     svg.attr("transform", d3.event.transform)
                 }))
+                .on("dblclick.zoom", null)
                 .append("g")
+                .style("overflow", "visible")
                 .attr("transform", "translate(" +
                     margin.left + "," + margin.top + ")");
 
@@ -499,19 +484,17 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     return a.parent == b.parent ? 1 : 2;
                 });;
 
-            // Assigns parent, children, height, depth
+            // assigns parent, children, height, depth
             root = d3.hierarchy(treeData, function (d) {
                 return d.children;
             });
             root.x0 = height / 4;
             root.y0 = 0;
 
-            // Collapse after the second level
-            // root.children.forEach(collapse);
-
+            // run function to render new visualization
             update(root);
 
-            // Collapse the node and all it's children
+            // collapse the node and all it's children
             function collapse(d) {
                 if (d.children) {
                     d._children = d.children
@@ -522,34 +505,34 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
             function update(source) {
 
-                // Assigns the x and y position for the nodes
+                // assigns the x and y position for the nodes
                 const treeData = treemap(root);
 
-                // Compute the new tree layout.
+                // compute the new tree layout
                 const nodes = treeData.descendants(),
                     links = treeData.descendants().slice(1);
 
-                // Normalize for fixed-depth.
+                // normalize for fixed-depth
                 nodes.forEach(function (d) {
                     d.y = d.depth * 90
                 });
 
                 // ****************** Nodes section ***************************
 
-                // Update the nodes...
+                // update the nodes...
                 let node = svg.selectAll('g.node')
                     .data(nodes, function (d) {
                         return d.id || (d.id = ++i);
                     });
 
-                // Enter any new modes at the parent's previous position.
+                // enter any new modes at the parent's previous position
                 const nodeEnter = node.enter().append('g')
                     .attr('class', 'node')
                     .attr("transform", function (d) {
                         return "translate(" + source.y0 + "," + source.x0 + ")";
                     })
 
-                // Add Circle for the nodes
+                // add Circle for the nodes and add blue border if state has changed
                 let highlight;
                 let removal;
                 let changeDiv = panel.document.createElement('div')
@@ -557,7 +540,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 changeDiv.innerHTML = function (d) {
                     return JSON.stringify(d.data.changes)
                 }
-                console.log(changeDiv)
+
                 nodeEnter.append('circle')
                     .attr('class', 'node')
                     .attr('r', 1e-6)
@@ -573,21 +556,22 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     .on('click', click)
                     .on("mouseover", function (d) {
 
-                        //highlight component on inspectedWindow on node hover
+                        // highlight component on application on node hover using components dimensions and coordinates
                         chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
                             highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
                             highlight.setAttribute('id', '${d.data.name}');
                             highlight.setAttribute('class', 'highlighter');
                             document.body.appendChild(highlight)
                             `);
-
+                        // remove highlight
                     }).on("mouseout", function (d) {
                         chrome.devtools.inspectedWindow.eval(`
                                 removal = document.getElementById('${d.data.name}')
                                 removal.parentNode.removeChild(removal);
                             `);
                     });
-                // Add labels for the nodes
+
+                // add labels for the nodes
                 nodeEnter.append('text')
                     .attr("dy", ".35em")
                     .attr("x", function (d) {
@@ -609,17 +593,16 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         pathToRoot.forEach((el) => el.attr('opacity', '.4'))
                     })
                     .on("mouseover", function (d) {
-
-                        //highlight component on inspectedWindow on node hover
+                        // highlight component on application on text hover using components dimensions and coordinates
                         chrome.devtools.inspectedWindow.eval(`highlight = document.createElement("div");
                             highlight.setAttribute('style', 'position: absolute; width: ${d.data.width}px; height: ${d.data.height}px; top: ${d.data.top}px; left: ${d.data.left}px; background-color: rgba(137, 196, 219, .6); border: 1px dashed rgb(137, 196, 219); z-index: 99999;')
                             highlight.setAttribute('id', '${d.data.name}');
                             highlight.setAttribute('class', 'highlighter');
                             document.body.appendChild(highlight)
                             `);
-
                     })
                     .on("mouseout", function (d) {
+                        // remove highlight
                         chrome.devtools.inspectedWindow.eval(`
                                 removal = document.getElementById('${d.data.name}')
                                 removal.parentNode.removeChild(removal);
@@ -629,7 +612,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         return d.data.name.slice(0, d.data.name.lastIndexOf("-"))
                     });
 
-                //coloring of paths based on what node is clicked
+                // color path to root for clicked node
                 d3.selectAll("path").style("stroke", function (d) {
                     if (d.color) {
                         return d.color; //if the value is set
@@ -638,7 +621,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     }
                 })
 
-                //coloring of circles based on what node is clicked
+                // coloring of circles based on what node is clicked
                 d3.selectAll("circle").style("opacity", function (d) {
                     if (d.color) {
                         return "1"; //if the value is set
@@ -647,7 +630,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     }
                 })
 
-                //coloring of text based on what node is clicked
+                // coloring of text based on what node is clicked
                 d3.selectAll("text").style("opacity", function (d) {
                     if (d.color) {
                         return "1"; //if the value is set
@@ -659,14 +642,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 // UPDATE
                 let nodeUpdate = nodeEnter.merge(node);
 
-                // Transition to the proper position for the node
+                // transition to the proper position for the node
                 nodeUpdate.transition()
                     .duration(duration)
                     .attr("transform", function (d) {
                         return "translate(" + d.y + "," + d.x + ")";
                     });
 
-                // Update the node attributes and style
+                // update the node attributes and style
                 nodeUpdate.select('circle.node')
                     .attr('r', 8)
                     .style("fill", function (d) {
@@ -676,7 +659,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     .attr('cursor', 'pointer');
 
 
-                // Remove any exiting nodes
+                // remove any exiting nodes
                 const nodeExit = node.exit().transition()
                     .duration(duration)
                     .attr("transform", function (d) {
@@ -684,23 +667,23 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     })
                     .remove();
 
-                // On exit reduce the node circles size to 0
+                // on exit reduce the node circles size to 0
                 nodeExit.select('circle')
                     .attr('r', 1e-6);
 
-                // On exit reduce the opacity of text labels
+                // on exit reduce the opacity of text labels
                 nodeExit.select('text')
                     .style('fill-opacity', 1e-6);
 
                 // ****************** links section ***************************
 
-                // Update the links...
+                // update the links...
                 const link = svg.selectAll('path.link')
                     .data(links, function (d) {
                         return d.id;
                     });
 
-                // Enter any new links at the parent's previous position.
+                // enter any new links at the parent's previous position
                 const linkEnter = link.enter().insert('path', "g")
                     .attr("class", "link")
                     .attr('d', function (d) {
@@ -714,14 +697,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                 // UPDATE
                 const linkUpdate = linkEnter.merge(link);
 
-                // Transition back to the parent element position
+                // transition back to the parent element position
                 linkUpdate.transition()
                     .duration(duration)
                     .attr('d', function (d) {
                         return diagonal(d, d.parent)
                     });
 
-                // Remove any exiting links
+                // remove any exiting links
                 const linkExit = link.exit().transition()
                     .duration(duration)
                     .attr('d', function (d) {
@@ -733,13 +716,13 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     })
                     .remove();
 
-                // Store the old positions for transition.
+                // store the old positions for transition.
                 nodes.forEach(function (d) {
                     d.x0 = d.x;
                     d.y0 = d.y;
                 });
 
-                // Creates a curved (diagonal) path from parent to the child nodes
+                // creates a curved (diagonal) path from parent to the child nodes
                 function diagonal(s, d) {
                     path = `M ${s.y} ${s.x}
                         C ${(s.y + d.y) / 2} ${s.x},
@@ -749,7 +732,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     return path
                 }
 
-                // Toggle children on click.
+                // toggle children on click.
                 function click(d) {
                     if (d.children) {
                         d._children = d.children;
@@ -761,6 +744,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     update(d);
                 }
 
+                // handle multiple events for node clicks (highlighting path to root and opening component inspector)
                 function clickHandler(d) {
 
                     //highlight path from node to root
@@ -780,35 +764,36 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     }
 
                     var select = d.data.name;
+
                     //find selected data from flattened root record
                     var find = flatten(root).find(function (d) {
                         if (d.data.name == select)
                             return true;
                     });
+
                     //reset all the data to have color undefined.
                     flatten(root).forEach(function (d) {
                         d.color = undefined;
                     })
-                    //iterate over the selected node and set color as green.
-                    //till it reaches it reaches the root
+
+                    //iterate over the selected node and set color as green until it reaches it reaches the root
                     while (find.parent) {
                         find.color = "#42b983";
                         find = find.parent;
                     }
                     update(find);
 
-                    // if it's already open, remove it and create a new one
+                    // if the component inspector is already open, remove it and create a new one
                     if (panel.document.getElementById('sidebar')) {
                         closeSidebar();
                     }
                     const sidebar = document.createElement('section');
                     sidebar.setAttribute('id', 'sidebar');
 
-                    console.log(d)
-                    // add class to the top link for now
                     const topLink = panel.document.getElementById('viz-link');
                     topLink.innerHTML = "<a href='#'>Component Inspector</a>";
                     topLink.classList.add('active');
+
                     // populate the section with our headings
                     const contentdiv = document.createElement('div');
                     contentdiv.setAttribute('id', 'app_content');
@@ -837,7 +822,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     panel.document.getElementById('props_handler').addEventListener('click', propToggle);
                     panel.document.getElementById('vars_handler').addEventListener('click', varToggle);
                     panel.document.getElementById('methods_handler').addEventListener('click', methodToggle);
-                    //                 panel.document.getElementById('method_handler').addEventListener('click', methodToggle);
+
                     // click handlers for sidebar sections
                     function propToggle(e) {
                         e.preventDefault();
@@ -845,7 +830,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         var element = panel.document.querySelector('.props-list').classList.toggle('opened');
                         console.log(element)
                     }
-
 
                     function methodToggle(e) {
                         e.preventDefault();
@@ -856,14 +840,14 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
 
                     function varToggle(e) {
                         e.preventDefault();
-                        panel.document.getElementById('vars_handler').classList.toggle('active-sidebar');   
+                        panel.document.getElementById('vars_handler').classList.toggle('active-sidebar');
                         panel.document.querySelector('.vars-list').classList.toggle('opened');
                     }
-                    // add an event listener
+
+                    // add an event listener to close sidebar button
                     panel.document.getElementById('close_sidebar').addEventListener('click', closeSidebar)
 
-                    // populate the headings with the component data
-                    //popular methods on sidebar
+                    // populate methods on sidebar
                     let methodList = panel.document.getElementById(d.data.name + "Methods");
                     if (d.data.methods === "undefined") {
                         let method = document.createElement("li");
@@ -928,14 +912,16 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         panel.document.getElementById('contentContainer').removeChild(remove);
                     }
 
-                    //only run if there are changes to the component
-                    //create array of strings - e.g. 'CommentCount changed from 0 to 1'
+                    // only runs if there are changes to the component
+                    // create array of strings of state changes - e.g. 'CommentCount changed from 0 to 1'
                     if (d.data.changes) {
                         console.log(d.data.name, 'has changes');
                         let changeArray = [];
                         for (let i = 0; i < d.data.changes.length; i += 1) {
                             let changes = d.data.changes[i];
-                            if (changes.path.includes("html") || changes.path.includes("top") || changes.path.includes("bottom") || changes.path.includes("left") || changes.path.includes("right")) { d.data.changes.splice(i, 1) } else {
+                            if (changes.path.includes("html") || changes.path.includes("top") || changes.path.includes("bottom") || changes.path.includes("left") || changes.path.includes("right")) {
+                                d.data.changes.splice(i, 1)
+                            } else {
                                 let prop = JSON.stringify(changes.path[0]).slice(1, changes.path[0].length + 1);
                                 console.log(prop)
                                 let oldVal = (typeof changes.rhs === 'number') ? Math.floor(changes.rhs) : changes.rhs.slice(0, changes.rhs.length);
@@ -945,7 +931,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                             }
                         }
 
-                        //create HTMl consisting of changes
+                        // create UL consisting of changes
                         let htmlString = '<ul class="opened">';
                         if (changeArray.length === 0) {
                             return
@@ -956,7 +942,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         }
                         htmlString = htmlString + '</ul>'
 
-                        //append changes to page
+                        // attach changes to inspector
                         const changesDiv = document.createElement('div');
                         changesDiv.setAttribute('id', 'change_content');
                         changesDiv.innerHTML = `

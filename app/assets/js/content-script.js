@@ -1,4 +1,4 @@
-//Stress testing start
+// Beginning of stress testing functionality - records click events on links as example
 // let actions = []
 // $(document).ready(function () {
 //     $('a').on('click', function (e) {
@@ -24,6 +24,8 @@
 let count;
 let oldCount;
 let check;
+
+// retrieve and save background color of application
 $(document).ready(function () {
     const bgColor = $('body').css('backgroundColor')
 
@@ -38,7 +40,6 @@ $(document).ready(function () {
 //inspect page for node count changes and if change then capture state on devtools.js
 
 nodeCounter = function () {
-    //FIX FOR TIME TRAVEL - MAKE SOME SORT OF CHECK SO NEW STATE ISN'T ADDED
     chrome.storage.sync.get('traveledThroughTime', function (result) {
         if (!result.traveledThroughTime) {
             count = document.querySelectorAll('*').length - document.querySelectorAll('div.highlighter').length - document.querySelectorAll('div.timeTravel').length;
@@ -56,6 +57,7 @@ nodeCounter = function () {
     })
 }
 
+// retrieve initial node count for comparison against future node counts
 firstNodeCounter = function () {
     oldCount = document.querySelectorAll('*').length;
     chrome.storage.sync.set({
