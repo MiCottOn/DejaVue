@@ -30,7 +30,6 @@ function createDV() {
     // gets document.body's child nodes which are direct child html elements
   const keysArray = Object.keys(document.body.children);
   
-  console.log('keys', keysArray)
     // initialize empty array to store root node objects
       const rootNodes = [];
 
@@ -39,7 +38,6 @@ function createDV() {
     // iterate through keysArray to push only Vue root nodes into rootNodes array
         for (let i = 0; i < keysArray.length; i += 1) {
           const testNode = document.body.children[keysArray[i]];
-        console.log('test node for root value', testNode)    
         if (!rootNodes.includes(testNode) &&  `testNode.__vue__`) rootNodes.push(testNode);
       }
 
@@ -50,4 +48,4 @@ function createDV() {
       console.log('rootNodes', rootNodes);
 }
 
-console.log(createDV());
+// console.log(createDV());

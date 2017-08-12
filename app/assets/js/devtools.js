@@ -305,8 +305,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                                     else return false;
                                 })
 
-                                console.log(methodKeys)
-
                                 if (methodKeys) {
                                     methodKeys.forEach((method) => {
                                         if (method) dvComponents[dvComponents.length - 1].methods.push(method);
@@ -828,14 +826,12 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                         e.preventDefault();
                         panel.document.getElementById('props_handler').classList.toggle('active-sidebar');
                         var element = panel.document.querySelector('.props-list').classList.toggle('opened');
-                        console.log(element)
                     }
 
                     function methodToggle(e) {
                         e.preventDefault();
                         panel.document.getElementById('methods_handler').classList.toggle('active-sidebar');
                         var element = panel.document.querySelector('.methods-list').classList.toggle('opened');
-                        console.log(element)
                     }
 
                     function varToggle(e) {
@@ -915,7 +911,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                     // only runs if there are changes to the component
                     // create array of strings of state changes - e.g. 'CommentCount changed from 0 to 1'
                     if (d.data.changes) {
-                        console.log(d.data.name, 'has changes');
                         let changeArray = [];
                         for (let i = 0; i < d.data.changes.length; i += 1) {
                             let changes = d.data.changes[i];
@@ -923,7 +918,6 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', fu
                                 d.data.changes.splice(i, 1)
                             } else {
                                 let prop = JSON.stringify(changes.path[0]).slice(1, changes.path[0].length + 1);
-                                console.log(prop)
                                 let oldVal = (typeof changes.rhs === 'number') ? Math.floor(changes.rhs) : changes.rhs.slice(0, changes.rhs.length);
                                 let newVal = (typeof changes.lhs === 'number') ? Math.floor(changes.lhs) : changes.lhs.slice(0, changes.lhs.length);
                                 let changeText = (prop === 'height' || prop === 'width') ? `${prop} changed from ${oldVal} to ${newVal}` : `${oldVal} changed to ${newVal}`;
