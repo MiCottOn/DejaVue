@@ -1,0 +1,39 @@
+{
+    "name": "DejaVue",
+    "version": "1.0.7",
+    "manifest_version": 2,
+    "description": "Vue component and state visualization and load time optimizer",
+    "background": {
+        "scripts": [
+            "app/assets/js/background.js"
+        ]
+    },
+    "devtools_page": "devtools.html",
+    "permissions": [
+        "storage",
+        "activeTab",
+        "<all_urls>",
+        "*://*/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["app/assets/js/jquery.js", "app/assets/js/content-script.js"],
+            "run_at" : "document_start"
+        }
+        
+    ],
+    "content_security_policy": "default-src 'self'  'unsafe-eval' chrome-extension-resource: ; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval';  connect-src *; frame-src *;",
+    "web_accessible_resources":
+      [
+       "scraper.js", "devtools.html", "background.html", "d3.min.js"
+      ],
+    "browser_action": {
+    "default_icon": {
+        "19": "app/assets/img/logo.png",
+        "38": "app/assets/img/logo.png"
+    },
+    "default_title": "DejaVue",
+    "default_popup": "popup.html"
+  }
+}

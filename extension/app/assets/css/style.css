@@ -1,0 +1,368 @@
+/* Fonts
+============================================================== */
+@font-face {
+  font-family: 'OpenSans';
+  src: local('OpenSans'), local('OpenSans-Regular'), url('../assets/OpenSans-Regular.woff2') format('woff2');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'OpenSans';
+  src: local('OpenSans-Bold'), url('../assets/OpenSans-SemiBold.woff2') format('woff2');
+  font-weight: bold;
+}
+/* Universal
+============================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.timeTravelMin {
+  width:100%; 
+  height: 100px; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  z-index: -1;
+}
+
+.timeTravelMax {
+  width:100%; 
+  height: 100vh; 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  z-index: 99;
+}
+
+/* Body / App
+============================================================== */
+.defaultTheme {
+  background-color: rgb(255,255,255);
+}
+
+.darkTheme {
+  background-color:rgb(36,36,36);
+}
+
+html, #app, #contentContainer {
+  height: 100%;
+}
+body {
+  background: white;
+  font-family: 'OpenSans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: rgba(40, 50, 61, .9);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Header
+============================================================== */
+#headerContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 40px;
+  background: #fafafa;
+  margin: 0;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+}
+
+#headerLeft {
+  width: 20%;
+  padding-left: 20px;
+  position: relative;
+}
+
+header h2 a {
+  position: absolute;
+  top: 8px;
+  left: 20px;
+  color: rgba(40, 50, 61, .9);
+  font-weight: bold;
+}
+
+#headerRight {
+  flex: 1;
+  text-align: right;
+  min-width: 320px;
+}
+
+#headerRight ul {
+  display: flex;
+  justify-content: flex-end;
+}
+
+#headerRight li {
+  height: 40px;
+  position: absolute;
+  width: 200px;
+  margin: 0;
+}
+
+#headerRight li a {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 14px 10px;
+  font-size: 11px;
+  letter-spacing: .5px;
+  font-weight: bold;
+  text-align: center;
+  color: rgba(40, 50, 61, .9);
+  text-transform: uppercase;
+  transition: all .25s ease;
+}
+
+/*.active {
+  border-bottom: 4px solid #237550;
+}*/
+
+#headerRight li.active a {
+  color: #FFF;
+  background: rgba(34, 34, 34, .95);
+}
+
+/* SVG Styles
+============================================================== */
+svg {
+  margin-left: 0px;
+}
+svg path.link:first-of-type, svg g.node:first-of-type {
+  display: none
+}
+.node circle {
+  fill: #fff;
+  stroke: #42b983;
+  stroke-width: 2px;
+}
+
+.node text {
+  font: 11px sans-serif;
+  text-decoration: underline;
+  cursor: pointer;
+  background: white;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 200px;					
+    height: 100px;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
+
+/* Sidebar
+============================================================== */
+#sidebar {
+  position: absolute;
+  height: 100%;
+  overflow-y: scroll;
+  top: 0;
+  right: 0;
+  width: 200px;
+  background: rgba(40, 50, 61, .9);
+  color: #FAFAFA;
+  padding: 40px 0 10px;
+  border-bottom: 5px solid #4fc08d;
+  overflow-wrap: break-word;
+}
+
+.layer-1 {
+  background: rgba(44,62,80,.96);
+  padding: 5px;
+  color: white;
+}
+.changed {
+  background: #42b983;
+}
+#sidebar ul {
+  height: 0;
+  overflow: hidden;
+  transition: all .25s ease;
+}
+
+.opened {
+  height: auto!important;
+  overflow: visible!important;
+}
+#sidebar li {
+  display: block;
+  padding: 8px 10px;
+  margin: 0;
+  text-align: left;
+}
+
+#app_content h3 {
+  background: #4fc08d;
+  padding: 25px;
+  text-align: center;
+  color: white;
+  font-size: 21px;
+  min-height: 70px;
+}
+
+#sidebar h4 a, #slot_handler {
+  color: white;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 15px;
+  font-weight: bold;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  background: rgba(255,255,255,.05);
+  transition: background .25s ease;
+}
+
+#sidebar h4 a:hover, #slot_handler, .active-sidebar {
+  background: rgba(0,0,0,.2)!important;
+}
+
+#close_sidebar {
+  display: block;
+  color: white;
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  top: 52px; 
+  right: 5px;
+  z-index: 10;
+}
+
+#close_sidebar:before, #close_sidebar:after {
+  content: '';
+  display: block;
+  width: 15px;
+  height: 2px;
+  background: white;
+  position: absolute;
+  top: 0;
+  right: 0;
+  transition: background .25s ease;
+  z-index: 20;
+}
+
+#close_sidebar:before {
+  transform: rotate(45deg);
+}
+
+#close_sidebar:after {
+  transform: rotate(315deg)
+}
+
+#close_sidebar:hover {
+  background: none!important;
+}
+
+/*DOM Highlight*/
+.highlight {
+  background-color: rgba(137, 196, 219, .2);
+  z-index: 99999;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%; /* aspect ratio */
+    vertical-align: top;
+    overflow: hidden;
+}
+.svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+
+/* Range Slider 
+============================================================== */
+input[type=range] {
+  -webkit-appearance: none; 
+  background: transparent; 
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+
+input[type=range]:focus {
+  outline: none; 
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #4fc08d;
+  cursor: pointer;
+  margin-top: -3px;
+  position: relative;
+  margin-left: -2px; 
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  background: #eee;
+}
+
+input[type=range]:focus::-webkit-slider-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #4fc08d;
+  cursor: pointer;
+  margin-top: -6px;
+  position: relative;
+  border: 5px solid rgba(0,0,0,.2);
+}
+
+#timeTravelButton {
+  -webkit-appearance: none;
+  display: block;
+  font-family: 'OpenSans', "Avenir",  sans-serif;
+  outline: 0;
+  border: 0;
+  padding: 0 10px;
+  text-align: center;
+  margin: 15px auto 0;
+  font-size: 11px;
+  height: 26px;
+  line-height: 26px;
+  text-transform: uppercase;
+  border-radius: 4px;
+  background: #2c3e50;
+  color: white;
+  cursor: pointer;
+}
