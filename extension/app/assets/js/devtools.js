@@ -898,7 +898,7 @@ chrome.devtools.panels.create('DejaVue', 'assets/img/logo.png', 'index.html', (
           const propMaker = (name, value) => {
             const propType = typeof(value)
             console.log(value)
-            if (propType === 'object' && value._length) 
+            if (propType === 'object' && value._length >= 0) 
               return `${name}: Function`
             if (propType === 'string' || propType === 'number')
               return `${name}: ${value}`
